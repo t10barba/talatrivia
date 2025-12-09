@@ -1,0 +1,50 @@
+App\Entity\Usuario:
+    usuario_1:
+        nombre: 'Daniela'
+        apellido: 'Sandía'
+        email: 'daniela.sandia@example.com'
+    
+    usuario_2:
+        nombre: 'José'
+        apellido: 'Limón'
+        email: 'jose.limon@example.com'
+    
+    usuario_3:
+        nombre: 'Carlos'
+        apellido: 'Manzana'
+        email: 'carlos.manzana@example.com'
+    
+    usuario_4:
+        nombre: 'Ana'
+        apellido: 'Kiwi'
+        email: 'ana.kiwi@example.com'
+    
+    usuario_5:
+        nombre: 'Pedro'
+        apellido: 'Piña'
+        email: 'pedro.pina@example.com'
+
+    usuario_6:
+        nombre: 'Jazmín'
+        apellido: 'Arándano'
+        email: 'jazmin.arandano@example.com'
+    
+    usuario_7:
+        nombre: 'Luis'
+        apellido: 'Cereza'
+        email: 'luis.cereza@example.com'
+
+    usuario_8:
+        nombre: 'Sofía'
+        apellido: 'Mango'
+        email: 'sofia.mango@example.com'
+
+    usuario_9:
+        nombre: 'Lady'
+        apellido: 'Papaya'
+        email: 'lady.papaya@example.com'
+        
+    usuario_10:
+        nombre: 'Tomás'
+        apellido: 'Durazno'
+        email: 'tomas.durazno@example.com'

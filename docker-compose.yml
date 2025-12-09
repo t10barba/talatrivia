@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  database:
+    image: mysql:8.0
+    container_name: talatrivia_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: talatrivia
+      MYSQL_USER: talatrivia_user
+      MYSQL_PASSWORD: talatrivia_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - talatrivia_network
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: talatrivia_api
+    working_dir: /var/www/api
+    volumes:
+      - ./api:/var/www/api
+    environment:
+      DATABASE_URL: mysql://talatrivia_user:talatrivia_pass@database:3306/talatrivia
+    depends_on:
+      - database
+    networks:
+      - talatrivia_network
+
+  api_nginx:
+    image: nginx:alpine
+    container_name: talatrivia_api_nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./api:/var/www/api
+      - ./api/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - api
+    networks:
+      - talatrivia_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: talatrivia_backend
+    working_dir: /var/www/backend
+    volumes:
+      - ./backend:/var/www/backend
+    environment:
+      DATABASE_URL: mysql://talatrivia_user:talatrivia_pass@database:3306/talatrivia
+    depends_on:
+      - database
+    networks:
+      - talatrivia_network
+
+  backend_nginx:
+    image: nginx:alpine
+    container_name: talatrivia_backend_nginx
+    ports:
+      - "8081:80"
+    volumes:
+      - ./backend:/var/www/backend
+      - ./backend/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+    networks:
+      - talatrivia_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: talatrivia_frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+    depends_on:
+      - api
+    networks:
+      - talatrivia_network
+
+volumes:
+  db_data:
+
+networks:
+  talatrivia_network:
+    name: talatrivia_network
+    driver: bridge

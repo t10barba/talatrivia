@@ -1,0 +1,5 @@
+Plataforma Docker
+- api: PHP Api - Symfony Framework con ORM Doctrine
+- frontend: App frontend - Nextjs
+- backend: PHP App admin - Symfony Framework con EasyAdminBundle para generar CRUDs
+- database: MySQL

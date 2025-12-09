@@ -1,0 +1,13 @@
+TalaTrivia
+--
+
+* planificar plataforma
+* crear dockerfile
+* crear modelo Doctrine
+* generar fixtures estáticos
+* primer endpoint api /v1/usuarios
+* documentación de api usando NelmioApiDocBundle
+
+* integrar Auth0
+* aplicar seguridad
+* crear repositorio github
