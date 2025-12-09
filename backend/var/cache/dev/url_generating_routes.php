@@ -4,4 +4,16 @@
 
 return [
     '_preview_error' => [['code', '_format'], ['_controller' => 'error_controller::preview', '_format' => 'html'], ['code' => '\\d+'], [['variable', '.', '[^/]++', '_format', true], ['variable', '/', '\\d+', 'code', true], ['text', '/_error']], [], [], []],
+    'admin' => [[], ['_controller' => 'App\\Controller\\Admin\\DashboardController::index'], [], [['text', '/admin']], [], [], []],
+    'admin_usuario_index' => [[], ['_controller' => 'App\\Controller\\Admin\\UsuarioCrudController::index'], [], [['text', '/admin/usuario']], [], [], []],
+    'admin_usuario_detail' => [['id'], ['_controller' => 'App\\Controller\\Admin\\UsuarioCrudController::detail'], [], [['variable', '/', '[^/]++', 'id', true], ['text', '/admin/usuario']], [], [], []],
+    'admin_usuario_new' => [[], ['_controller' => 'App\\Controller\\Admin\\UsuarioCrudController::new'], [], [['text', '/admin/usuario/new/form']], [], [], []],
+    'admin_usuario_edit' => [['id'], ['_controller' => 'App\\Controller\\Admin\\UsuarioCrudController::edit'], [], [['text', '/edit'], ['variable', '/', '[^/]++', 'id', true], ['text', '/admin/usuario']], [], [], []],
+    'admin_usuario_delete' => [['id'], ['_controller' => 'App\\Controller\\Admin\\UsuarioCrudController::delete'], [], [['text', '/delete'], ['variable', '/', '[^/]++', 'id', true], ['text', '/admin/usuario']], [], [], []],
+    'App\Controller\Admin\DashboardController::index' => [[], ['_controller' => 'App\\Controller\\Admin\\DashboardController::index'], [], [['text', '/admin']], [], [], []],
+    'App\Controller\Admin\UsuarioCrudController::index' => [[], ['_controller' => 'App\\Controller\\Admin\\UsuarioCrudController::index'], [], [['text', '/admin/usuario']], [], [], []],
+    'App\Controller\Admin\UsuarioCrudController::detail' => [['id'], ['_controller' => 'App\\Controller\\Admin\\UsuarioCrudController::detail'], [], [['variable', '/', '[^/]++', 'id', true], ['text', '/admin/usuario']], [], [], []],
+    'App\Controller\Admin\UsuarioCrudController::new' => [[], ['_controller' => 'App\\Controller\\Admin\\UsuarioCrudController::new'], [], [['text', '/admin/usuario/new/form']], [], [], []],
+    'App\Controller\Admin\UsuarioCrudController::edit' => [['id'], ['_controller' => 'App\\Controller\\Admin\\UsuarioCrudController::edit'], [], [['text', '/edit'], ['variable', '/', '[^/]++', 'id', true], ['text', '/admin/usuario']], [], [], []],
+    'App\Controller\Admin\UsuarioCrudController::delete' => [['id'], ['_controller' => 'App\\Controller\\Admin\\UsuarioCrudController::delete'], [], [['text', '/delete'], ['variable', '/', '[^/]++', 'id', true], ['text', '/admin/usuario']], [], [], []],
 ];

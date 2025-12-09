@@ -55,15 +55,6 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'doctrine/doctrine-migrations-bundle' => array(
-            'pretty_version' => '3.7.0',
-            'version' => '3.7.0.0',
-            'reference' => '1e380c6dd8ac8488217f39cff6b77e367f1a644b',
-            'type' => 'symfony-bundle',
-            'install_path' => __DIR__ . '/../doctrine/doctrine-migrations-bundle',
-            'aliases' => array(),
-            'dev_requirement' => true,
-        ),
         'doctrine/event-manager' => array(
             'pretty_version' => '2.0.1',
             'version' => '2.0.1.0',
@@ -99,15 +90,6 @@
             'install_path' => __DIR__ . '/../doctrine/lexer',
             'aliases' => array(),
             'dev_requirement' => false,
-        ),
-        'doctrine/migrations' => array(
-            'pretty_version' => '3.9.5',
-            'version' => '3.9.5.0',
-            'reference' => '1b823afbc40f932dae8272574faee53f2755eac5',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../doctrine/migrations',
-            'aliases' => array(),
-            'dev_requirement' => true,
         ),
         'doctrine/orm' => array(
             'pretty_version' => '3.5.8',
@@ -153,6 +135,18 @@
             'install_path' => __DIR__ . '/../nikic/php-parser',
             'aliases' => array(),
             'dev_requirement' => true,
+        ),
+        'php-http/async-client-implementation' => array(
+            'dev_requirement' => false,
+            'provided' => array(
+                0 => '*',
+            ),
+        ),
+        'php-http/client-implementation' => array(
+            'dev_requirement' => false,
+            'provided' => array(
+                0 => '*',
+            ),
         ),
         'psr/cache' => array(
             'pretty_version' => '3.0.0',
@@ -209,6 +203,12 @@
             'dev_requirement' => false,
         ),
         'psr/event-dispatcher-implementation' => array(
+            'dev_requirement' => false,
+            'provided' => array(
+                0 => '1.0',
+            ),
+        ),
+        'psr/http-client-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
                 0 => '1.0',
@@ -408,6 +408,30 @@
             'install_path' => __DIR__ . '/../symfony/framework-bundle',
             'aliases' => array(),
             'dev_requirement' => false,
+        ),
+        'symfony/http-client' => array(
+            'pretty_version' => 'v7.4.1',
+            'version' => '7.4.1.0',
+            'reference' => '26cc224ea7103dda90e9694d9e139a389092d007',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../symfony/http-client',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'symfony/http-client-contracts' => array(
+            'pretty_version' => 'v3.6.0',
+            'version' => '3.6.0.0',
+            'reference' => '75d7043853a42837e68111812f4d964b01e5101c',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../symfony/http-client-contracts',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'symfony/http-client-implementation' => array(
+            'dev_requirement' => false,
+            'provided' => array(
+                0 => '3.0',
+            ),
         ),
         'symfony/http-foundation' => array(
             'pretty_version' => 'v7.4.1',
@@ -696,15 +720,6 @@
             'provided' => array(
                 0 => '1.1|2.0|3.0',
             ),
-        ),
-        'symfony/stopwatch' => array(
-            'pretty_version' => 'v7.4.0',
-            'version' => '7.4.0.0',
-            'reference' => '8a24af0a2e8a872fb745047180649b8418303084',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../symfony/stopwatch',
-            'aliases' => array(),
-            'dev_requirement' => true,
         ),
         'symfony/string' => array(
             'pretty_version' => 'v7.4.0',
