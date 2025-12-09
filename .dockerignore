@@ -1,0 +1,9 @@
+.git
+.github
+.DS_Store
+node_modules
+vendor
+.env
+.env.local
+var/cache/*
+var/log/*

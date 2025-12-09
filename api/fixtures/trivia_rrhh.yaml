@@ -1,0 +1,82 @@
+App\Entity\Trivia:
+    trivia_rrhh:
+        nombre: 'Trivia de Recursos Humanos'
+        descripcion: 'Pon a prueba tus conocimientos sobre gestión de recursos humanos y buenas prácticas laborales'
+
+App\Entity\Pregunta:
+    pregunta_rrhh_1:
+        dificultad: 1
+        texto: '¿Qué es el onboarding en recursos humanos?'
+    
+    pregunta_rrhh_2:
+        dificultad: 2
+        texto: '¿Cuál es el objetivo principal de una evaluación de desempeño?'
+    
+    pregunta_rrhh_3:
+        dificultad: 2
+        texto: '¿Qué significa la sigla KPI en el contexto de recursos humanos?'
+
+App\Entity\Respuesta:
+    # Respuestas para pregunta 1
+    respuesta_1_correcta:
+        pregunta: '@pregunta_rrhh_1'
+        texto: 'Es el proceso de integración de un nuevo empleado a la empresa'
+        esCorrecta: true
+    
+    respuesta_1_incorrecta_1:
+        pregunta: '@pregunta_rrhh_1'
+        texto: 'Es el proceso de desvinculación laboral'
+        esCorrecta: false
+    
+    respuesta_1_incorrecta_2:
+        pregunta: '@pregunta_rrhh_1'
+        texto: 'Es una técnica de capacitación externa'
+        esCorrecta: false
+    
+    # Respuestas para pregunta 2
+    respuesta_2_correcta:
+        pregunta: '@pregunta_rrhh_2'
+        texto: 'Medir el rendimiento del empleado y establecer planes de mejora'
+        esCorrecta: true
+    
+    respuesta_2_incorrecta_1:
+        pregunta: '@pregunta_rrhh_2'
+        texto: 'Determinar el salario inicial del empleado'
+        esCorrecta: false
+    
+    respuesta_2_incorrecta_2:
+        pregunta: '@pregunta_rrhh_2'
+        texto: 'Controlar la asistencia del personal'
+        esCorrecta: false
+    
+    # Respuestas para pregunta 3
+    respuesta_3_correcta:
+        pregunta: '@pregunta_rrhh_3'
+        texto: 'Key Performance Indicator (Indicador Clave de Desempeño)'
+        esCorrecta: true
+    
+    respuesta_3_incorrecta_1:
+        pregunta: '@pregunta_rrhh_3'
+        texto: 'Keep People Informed (Mantener a las Personas Informadas)'
+        esCorrecta: false
+    
+    respuesta_3_incorrecta_2:
+        pregunta: '@pregunta_rrhh_3'
+        texto: 'Knowledge Process Integration (Integración de Procesos de Conocimiento)'
+        esCorrecta: false
+
+App\Entity\PreguntaTrivia:
+    pregunta_trivia_1:
+        trivia: '@trivia_rrhh'
+        pregunta: '@pregunta_rrhh_1'
+        orden: 1
+    
+    pregunta_trivia_2:
+        trivia: '@trivia_rrhh'
+        pregunta: '@pregunta_rrhh_2'
+        orden: 2
+    
+    pregunta_trivia_3:
+        trivia: '@trivia_rrhh'
+        pregunta: '@pregunta_rrhh_3'
+        orden: 3

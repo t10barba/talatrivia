@@ -1,0 +1,48 @@
+usuario
+    - id
+    - nombre
+    - apellido
+    - email
+    - createdAt
+
+pregunta
+    - id
+    - dificultad (tinyInt: 1=facil, 2=medio, 3=dificil)
+    - texto
+    - createdAt
+
+respuesta
+    - id
+    - preguntaId
+    - texto
+    - esCorrecta (boolean)
+    - createdAt
+
+trivia
+    - id
+    - nombre
+    - descripcion
+    - createdAt
+
+preguntaTrivia
+    - triviaId
+    - preguntaId
+    - orden (integer)
+    - createdAt
+
+usuarioTrivia
+    - id
+    - triviaId
+    - usuarioId
+    - puntajeTotal (integer, nullable)
+    - completada (boolean)
+    - createdAt
+
+respuestaUsuario
+    - id
+    - usuarioTriviaId
+    - preguntaId
+    - respuestaId
+    - esCorrecta (boolean)
+    - puntajeObtenido (integer)
+    - createdAt

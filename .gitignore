@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+/frontend/.next/
+/frontend/out/
+/frontend/build/
+
+# Cache
+/api/var/cache/*
+!/api/var/cache/.gitkeep
+/api/var/log/*
+!/api/var/log/.gitkeep
+/backend/var/cache/*
+!/backend/var/cache/.gitkeep
+/backend/var/log/*
+!/backend/var/log/.gitkeep
+
+# Database
+db_data/
+*.db
+*.sqlite
+
+# Docker
+docker-compose.override.yml
+
+# Compiled files
+*.class
+*.pyc
+__pycache__/
