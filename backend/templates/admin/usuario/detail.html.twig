@@ -1,0 +1,35 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block page_title %}Detalle de Usuario{% endblock %}
+
+{% block content %}
+    <div class="mb-3">
+        <a href="{{ path('admin_usuario_index') }}" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Volver
+        </a>
+        <a href="{{ path('admin_usuario_edit', {id: usuario.id}) }}" class="btn btn-warning">
+            <i class="fa fa-edit"></i> Editar
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">ID:</dt>
+                <dd class="col-sm-9">{{ usuario.id }}</dd>
+
+                <dt class="col-sm-3">Nombre:</dt>
+                <dd class="col-sm-9">{{ usuario.nombre }}</dd>
+
+                <dt class="col-sm-3">Apellido:</dt>
+                <dd class="col-sm-9">{{ usuario.apellido }}</dd>
+
+                <dt class="col-sm-3">Email:</dt>
+                <dd class="col-sm-9">{{ usuario.email }}</dd>
+
+                <dt class="col-sm-3">Fecha de Creación:</dt>
+                <dd class="col-sm-9">{{ usuario.createdAt ? usuario.createdAt|date('d/m/Y H:i:s') : '-' }}</dd>
+            </dl>
+        </div>
+    </div>
+{% endblock %}

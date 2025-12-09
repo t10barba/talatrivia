@@ -470,7 +470,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *     },
  *     disallow_search_engine_index?: bool, // Enabled by default when debug is enabled. // Default: true
  *     http_client?: bool|array{ // HTTP Client configuration
- *         enabled?: bool, // Default: false
+ *         enabled?: bool, // Default: true
  *         max_host_connections?: int, // The maximum number of connections to a single host.
  *         default_options?: array{
  *             headers?: array<string, mixed>,
@@ -922,30 +922,6 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         resolve_target_entities?: array<string, scalar|null>,
  *     },
  * }
- * @psalm-type DoctrineMigrationsConfig = array{
- *     enable_service_migrations?: bool, // Whether to enable fetching migrations from the service container. // Default: false
- *     migrations_paths?: array<string, scalar|null>,
- *     services?: array<string, scalar|null>,
- *     factories?: array<string, scalar|null>,
- *     storage?: array{ // Storage to use for migration status metadata.
- *         table_storage?: array{ // The default metadata storage, implemented as a table in the database.
- *             table_name?: scalar|null, // Default: null
- *             version_column_name?: scalar|null, // Default: null
- *             version_column_length?: scalar|null, // Default: null
- *             executed_at_column_name?: scalar|null, // Default: null
- *             execution_time_column_name?: scalar|null, // Default: null
- *         },
- *     },
- *     migrations?: list<scalar|null>,
- *     connection?: scalar|null, // Connection name to use for the migrations database. // Default: null
- *     em?: scalar|null, // Entity manager name to use for the migrations database (available when doctrine/orm is installed). // Default: null
- *     all_or_nothing?: scalar|null, // Run all migrations in a transaction. // Default: false
- *     check_database_platform?: scalar|null, // Adds an extra check in the generated migrations to allow execution only on the same platform as they were initially generated on. // Default: true
- *     custom_template?: scalar|null, // Custom template path for generated migration classes. // Default: null
- *     organize_migrations?: scalar|null, // Organize migrations mode. Possible values are: "BY_YEAR", "BY_YEAR_AND_MONTH", false // Default: false
- *     enable_profiler?: bool, // Whether or not to enable the profiler collector to calculate and visualize migration status. This adds some queries overhead. // Default: false
- *     transactional?: bool, // Whether or not to wrap migrations in a single transaction. // Default: true
- * }
  * @psalm-type TwigConfig = array{
  *     form_themes?: list<scalar|null>,
  *     globals?: array<string, array{ // Default: []
@@ -1352,7 +1328,6 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *     services?: ServicesConfig,
  *     framework?: FrameworkConfig,
  *     doctrine?: DoctrineConfig,
- *     doctrine_migrations?: DoctrineMigrationsConfig,
  *     twig?: TwigConfig,
  *     twig_extra?: TwigExtraConfig,
  *     twig_component?: TwigComponentConfig,
@@ -1364,7 +1339,6 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         framework?: FrameworkConfig,
  *         maker?: MakerConfig,
  *         doctrine?: DoctrineConfig,
- *         doctrine_migrations?: DoctrineMigrationsConfig,
  *         twig?: TwigConfig,
  *         twig_extra?: TwigExtraConfig,
  *         twig_component?: TwigComponentConfig,
@@ -1376,7 +1350,6 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         services?: ServicesConfig,
  *         framework?: FrameworkConfig,
  *         doctrine?: DoctrineConfig,
- *         doctrine_migrations?: DoctrineMigrationsConfig,
  *         twig?: TwigConfig,
  *         twig_extra?: TwigExtraConfig,
  *         twig_component?: TwigComponentConfig,
@@ -1388,7 +1361,6 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         services?: ServicesConfig,
  *         framework?: FrameworkConfig,
  *         doctrine?: DoctrineConfig,
- *         doctrine_migrations?: DoctrineMigrationsConfig,
  *         twig?: TwigConfig,
  *         twig_extra?: TwigExtraConfig,
  *         twig_component?: TwigComponentConfig,

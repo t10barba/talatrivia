@@ -16,7 +16,6 @@
       <parameter key="FrameworkBundle">Symfony\Bundle\FrameworkBundle\FrameworkBundle</parameter>
       <parameter key="MakerBundle">Symfony\Bundle\MakerBundle\MakerBundle</parameter>
       <parameter key="DoctrineBundle">Doctrine\Bundle\DoctrineBundle\DoctrineBundle</parameter>
-      <parameter key="DoctrineMigrationsBundle">Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle</parameter>
       <parameter key="TwigBundle">Symfony\Bundle\TwigBundle\TwigBundle</parameter>
       <parameter key="TwigExtraBundle">Twig\Extra\TwigExtraBundle\TwigExtraBundle</parameter>
       <parameter key="TwigComponentBundle">Symfony\UX\TwigComponent\TwigComponentBundle</parameter>
@@ -35,10 +34,6 @@
       <parameter key="DoctrineBundle" type="collection">
         <parameter key="path">/var/www/backend/vendor/doctrine/doctrine-bundle</parameter>
         <parameter key="namespace">Doctrine\Bundle\DoctrineBundle</parameter>
-      </parameter>
-      <parameter key="DoctrineMigrationsBundle" type="collection">
-        <parameter key="path">/var/www/backend/vendor/doctrine/doctrine-migrations-bundle</parameter>
-        <parameter key="namespace">Doctrine\Bundle\MigrationsBundle</parameter>
       </parameter>
       <parameter key="TwigBundle" type="collection">
         <parameter key="path">/var/www/backend/vendor/symfony/twig-bundle</parameter>
@@ -80,9 +75,6 @@
       <parameter key="Doctrine\Bundle\DoctrineBundle\DoctrineBundle" type="collection">
         <parameter key="all">true</parameter>
       </parameter>
-      <parameter key="Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle" type="collection">
-        <parameter key="all">true</parameter>
-      </parameter>
       <parameter key="Symfony\Bundle\TwigBundle\TwigBundle" type="collection">
         <parameter key="all">true</parameter>
       </parameter>
@@ -99,6 +91,7 @@
         <parameter key="all">true</parameter>
       </parameter>
     </parameter>
+    <parameter key="api.base_url">http://api_nginx:80</parameter>
     <parameter key="event_dispatcher.event_aliases" type="collection">
       <parameter key="Symfony\Component\Console\Event\ConsoleCommandEvent">console.command</parameter>
       <parameter key="Symfony\Component\Console\Event\ConsoleErrorEvent">console.error</parameter>
@@ -250,8 +243,6 @@
     <parameter key="doctrine.orm.enable_native_lazy_objects">false</parameter>
     <parameter key="doctrine.orm.proxy_dir">/var/www/backend/var/cache/dev/doctrine/orm/Proxies</parameter>
     <parameter key="doctrine.orm.proxy_namespace">Proxies</parameter>
-    <parameter key="doctrine.migrations.preferred_em">null</parameter>
-    <parameter key="doctrine.migrations.preferred_connection">null</parameter>
     <parameter key="twig.form.resources" type="collection">
       <parameter>form_div_layout.html.twig</parameter>
     </parameter>
@@ -275,7 +266,71 @@
       <tag name="controller.service_arguments"/>
       <tag name="routing.route_loader"/>
     </service>
+    <service id="App\Controller\Admin\DashboardController" class="App\Controller\Admin\DashboardController" public="true" autowire="true" autoconfigure="true">
+      <tag name="ea.dashboard_controller"/>
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.taSV2iv.App\Controller\Admin\DashboardController"/>
+      </call>
+    </service>
+    <service id="App\Controller\Admin\UsuarioCrudController" class="App\Controller\Admin\UsuarioCrudController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <argument type="service" id="App\Service\UsuarioService"/>
+      <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.TJNRSaV.App\Controller\Admin\UsuarioCrudController"/>
+      </call>
+    </service>
+    <service id="App\DTO\Usuario" class="App\DTO\Usuario" autowire="true" autoconfigure="true"/>
+    <service id="App\Service\ApiClient" class="App\Service\ApiClient" autowire="true" autoconfigure="true">
+      <argument type="service" id="http_client.uri_template"/>
+      <argument>http://api_nginx:80</argument>
+    </service>
+    <service id="App\Service\UsuarioService" class="App\Service\UsuarioService" autowire="true" autoconfigure="true">
+      <argument type="service" id="App\Service\ApiClient"/>
+    </service>
+    <service id="controller_resolver" class="Symfony\Bundle\FrameworkBundle\Controller\ControllerResolver">
+      <tag name="monolog.logger" channel="request"/>
+      <argument type="service" id="service_container"/>
+      <argument type="service" id="logger" on-invalid="ignore"/>
+      <call method="allowControllers">
+        <argument type="collection">
+          <argument>Symfony\Bundle\FrameworkBundle\Controller\AbstractController</argument>
+          <argument>Symfony\Bundle\FrameworkBundle\Controller\TemplateController</argument>
+        </argument>
+      </call>
+      <call method="allowControllers">
+        <argument type="collection">
+          <argument>App\Kernel</argument>
+          <argument>App\Controller\Admin\DashboardController</argument>
+          <argument>App\Controller\Admin\UsuarioCrudController</argument>
+          <argument>Doctrine\Bundle\DoctrineBundle\Controller\ProfilerController</argument>
+        </argument>
+      </call>
+    </service>
     <service id="argument_metadata_factory" class="Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadataFactory"/>
+    <service id="argument_resolver" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver">
+      <argument type="service" id="argument_metadata_factory"/>
+      <argument type="iterator">
+        <argument type="service" id="security.user_value_resolver"/>
+        <argument type="service" id="security.security_token_value_resolver"/>
+        <argument type="service" id="doctrine.orm.entity_value_resolver"/>
+        <argument type="service" id="argument_resolver.backed_enum_resolver"/>
+        <argument type="service" id="argument_resolver.uid"/>
+        <argument type="service" id="argument_resolver.datetime"/>
+        <argument type="service" id="argument_resolver.request_attribute"/>
+        <argument type="service" id="argument_resolver.request"/>
+        <argument type="service" id="argument_resolver.session"/>
+        <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\AdminContextResolver"/>
+        <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\BatchActionDtoResolver"/>
+        <argument type="service" id="argument_resolver.service"/>
+        <argument type="service" id="argument_resolver.default"/>
+        <argument type="service" id="argument_resolver.variadic"/>
+      </argument>
+      <argument type="service" id=".service_locator.BTNpB.z"/>
+    </service>
     <service id="argument_resolver.backed_enum_resolver" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\BackedEnumValueResolver">
       <tag name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\BackedEnumValueResolver" priority="100">controller.argument_value_resolver</tag>
     </service>
@@ -301,7 +356,7 @@
     </service>
     <service id="argument_resolver.service" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
       <tag name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver" priority="-50">controller.argument_value_resolver</tag>
-      <argument type="service" id=".service_locator.8JS6QTA"/>
+      <argument type="service" id=".service_locator.jX8UL.u"/>
     </service>
     <service id="argument_resolver.default" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver">
       <tag name="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver" priority="-100">controller.argument_value_resolver</tag>
@@ -343,8 +398,8 @@
       <argument type="service" id="error_handler.error_renderer.default"/>
     </service>
     <service id="exception_listener" class="Symfony\Component\HttpKernel\EventListener\ErrorListener">
-      <tag name="monolog.logger" channel="request"/>
       <tag name="kernel.event_subscriber"/>
+      <tag name="monolog.logger" channel="request"/>
       <tag name="container.hot_path"/>
       <tag name="container.hot_path"/>
       <argument>error_controller</argument>
@@ -354,8 +409,8 @@
       <argument type="collection"/>
     </service>
     <service id="controller.cache_attribute_listener" class="Symfony\Component\HttpKernel\EventListener\CacheAttributeListener">
-      <tag name="kernel.reset" method="?reset"/>
       <tag name="kernel.event_subscriber"/>
+      <tag name="kernel.reset" method="?reset"/>
       <tag name="container.hot_path"/>
       <tag name="container.hot_path"/>
     </service>
@@ -371,15 +426,411 @@
     <service id="parameter_bag" class="Symfony\Component\DependencyInjection\ParameterBag\ContainerBag">
       <argument type="service" id="service_container"/>
     </service>
+    <service id="event_dispatcher" class="Symfony\Component\EventDispatcher\EventDispatcher" public="true">
+      <tag name="container.hot_path"/>
+      <tag name="event_dispatcher">event_dispatcher.dispatcher</tag>
+      <call method="addListener">
+        <argument>kernel.response</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.csrf.same_origin_token_manager"/>
+          <argument>onKernelResponse</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.listener.user_provider"/>
+          <argument>checkPassport</argument>
+        </argument>
+        <argument>1024</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.response</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.context_listener.0"/>
+          <argument>onKernelResponse</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.exception</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\EventListener\ExceptionListener"/>
+          <argument>onKernelException</argument>
+        </argument>
+        <argument>-64</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.view</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\EventListener\CrudResponseListener"/>
+          <argument>onKernelView</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.response</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="response_listener"/>
+          <argument>onKernelResponse</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="locale_listener"/>
+          <argument>setDefaultLocale</argument>
+        </argument>
+        <argument>100</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="locale_listener"/>
+          <argument>onKernelRequest</argument>
+        </argument>
+        <argument>16</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.finish_request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="locale_listener"/>
+          <argument>onKernelFinishRequest</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="validate_request_listener"/>
+          <argument>onKernelRequest</argument>
+        </argument>
+        <argument>256</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.response</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="disallow_search_engine_index_response_listener"/>
+          <argument>onResponse</argument>
+        </argument>
+        <argument>-255</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.controller_arguments</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="exception_listener"/>
+          <argument>onControllerArguments</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.exception</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="exception_listener"/>
+          <argument>logKernelException</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.exception</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="exception_listener"/>
+          <argument>onKernelException</argument>
+        </argument>
+        <argument>-128</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.response</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="exception_listener"/>
+          <argument>removeCspHeader</argument>
+        </argument>
+        <argument>-128</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.controller_arguments</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="controller.cache_attribute_listener"/>
+          <argument>onKernelControllerArguments</argument>
+        </argument>
+        <argument>10</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.response</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="controller.cache_attribute_listener"/>
+          <argument>onKernelResponse</argument>
+        </argument>
+        <argument>-10</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.controller_arguments</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="controller.is_signature_valid_attribute_listener"/>
+          <argument>onKernelControllerArguments</argument>
+        </argument>
+        <argument>30</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="locale_aware_listener"/>
+          <argument>onKernelRequest</argument>
+        </argument>
+        <argument>15</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.finish_request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="locale_aware_listener"/>
+          <argument>onKernelFinishRequest</argument>
+        </argument>
+        <argument>-15</argument>
+      </call>
+      <call method="addListener">
+        <argument>console.error</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="console.error_listener"/>
+          <argument>onConsoleError</argument>
+        </argument>
+        <argument>-128</argument>
+      </call>
+      <call method="addListener">
+        <argument>console.terminate</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="console.error_listener"/>
+          <argument>onConsoleTerminate</argument>
+        </argument>
+        <argument>-128</argument>
+      </call>
+      <call method="addListener">
+        <argument>console.error</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="console.suggest_missing_package_subscriber"/>
+          <argument>onConsoleError</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="debug.debug_handlers_listener"/>
+          <argument>configure</argument>
+        </argument>
+        <argument>2048</argument>
+      </call>
+      <call method="addListener">
+        <argument>console.command</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="debug.debug_handlers_listener"/>
+          <argument>configure</argument>
+        </argument>
+        <argument>2048</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="router_listener"/>
+          <argument>onKernelRequest</argument>
+        </argument>
+        <argument>32</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.finish_request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="router_listener"/>
+          <argument>onKernelFinishRequest</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.exception</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="router_listener"/>
+          <argument>onKernelException</argument>
+        </argument>
+        <argument>-64</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="session_listener"/>
+          <argument>onKernelRequest</argument>
+        </argument>
+        <argument>128</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.response</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="session_listener"/>
+          <argument>onKernelResponse</argument>
+        </argument>
+        <argument>-1000</argument>
+      </call>
+      <call method="addListener">
+        <argument>console.error</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="maker.console_error_listener"/>
+          <argument>onConsoleError</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>console.terminate</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="maker.console_error_listener"/>
+          <argument>onConsoleTerminate</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="doctrine.dbal.idle_connection_listener"/>
+          <argument>onKernelRequest</argument>
+        </argument>
+        <argument>192</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.view</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="controller.template_attribute_listener"/>
+          <argument>onKernelView</argument>
+        </argument>
+        <argument>-128</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\UX\TwigComponent\Event\PreRenderEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="ux.twig_component.component_logger_listener"/>
+          <argument>onPreRender</argument>
+        </argument>
+        <argument>255</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\UX\TwigComponent\Event\PostRenderEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="ux.twig_component.component_logger_listener"/>
+          <argument>onPostRender</argument>
+        </argument>
+        <argument>-255</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.controller_arguments</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="controller.is_granted_attribute_listener"/>
+          <argument>onKernelControllerArguments</argument>
+        </argument>
+        <argument>20</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.listener.check_authenticator_credentials"/>
+          <argument>checkPassport</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Security\Http\Event\LoginSuccessEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.listener.password_migrating"/>
+          <argument>onLoginSuccess</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>debug.security.authorization.vote</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="debug.security.voter.vote_listener"/>
+          <argument>onVoterVote</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="debug.security.firewall"/>
+          <argument>configureLogoutUrlGenerator</argument>
+        </argument>
+        <argument>8</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="debug.security.firewall"/>
+          <argument>onKernelRequest</argument>
+        </argument>
+        <argument>8</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.finish_request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="debug.security.firewall"/>
+          <argument>onKernelFinishRequest</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\EventListener\AdminRouterSubscriber"/>
+          <argument>onKernelRequestPrettyUrls</argument>
+        </argument>
+        <argument>1</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\EventListener\AdminRouterSubscriber"/>
+          <argument>onKernelRequest</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.controller</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\EventListener\AdminRouterSubscriber"/>
+          <argument>onKernelController</argument>
+        </argument>
+        <argument>128</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.listener.csrf_protection"/>
+          <argument>checkPassport</argument>
+        </argument>
+        <argument>512</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.controller_arguments</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="controller.is_csrf_token_valid_attribute_listener"/>
+          <argument>onKernelControllerArguments</argument>
+        </argument>
+        <argument>25</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Security\Http\Event\LogoutEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.logout.listener.csrf_token_clearing"/>
+          <argument>onLogout</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+    </service>
     <service id="http_kernel" class="Symfony\Component\HttpKernel\HttpKernel" public="true">
       <tag name="container.hot_path"/>
       <tag name="container.preload" class="Symfony\Component\Runtime\Runner\Symfony\HttpKernelRunner"/>
       <tag name="container.preload" class="Symfony\Component\Runtime\Runner\Symfony\ResponseRunner"/>
       <tag name="container.preload" class="Symfony\Component\Runtime\SymfonyRuntime"/>
-      <argument type="service" id="debug.event_dispatcher"/>
-      <argument type="service" id="debug.controller_resolver"/>
+      <argument type="service" id="event_dispatcher"/>
+      <argument type="service" id="controller_resolver"/>
       <argument type="service" id="request_stack"/>
-      <argument type="service" id="debug.argument_resolver"/>
+      <argument type="service" id="argument_resolver"/>
       <argument>true</argument>
     </service>
     <service id="request_stack" class="Symfony\Component\HttpFoundation\RequestStack" public="true">
@@ -440,9 +891,10 @@
         <argument key="cache.validator" type="service" id="cache.validator" on-invalid="ignore_uninitialized"/>
         <argument key="cache.serializer" type="service" id="cache.serializer" on-invalid="ignore_uninitialized"/>
         <argument key="cache.property_info" type="service" id="cache.property_info" on-invalid="ignore_uninitialized"/>
+        <argument key="cache.http_client.pool" type="service" id="cache.http_client.pool" on-invalid="ignore_uninitialized"/>
+        <argument key="http_client.transport" type="service" id="http_client.transport" on-invalid="ignore_uninitialized"/>
+        <argument key="http_client" type="service" id="http_client.uri_template" on-invalid="ignore_uninitialized"/>
         <argument key="translation.locale_switcher" type="service" id="translation.locale_switcher" on-invalid="ignore_uninitialized"/>
-        <argument key="debug.stopwatch" type="service" id="debug.stopwatch" on-invalid="ignore_uninitialized"/>
-        <argument key="debug.event_dispatcher" type="service" id="debug.event_dispatcher" on-invalid="ignore_uninitialized"/>
         <argument key="session_listener" type="service" id="session_listener" on-invalid="ignore_uninitialized"/>
         <argument key="form.choice_list_factory.cached" type="service" id="form.choice_list_factory.cached" on-invalid="ignore_uninitialized"/>
         <argument key="cache.validator_expression_language" type="service" id="cache.validator_expression_language" on-invalid="ignore_uninitialized"/>
@@ -462,7 +914,6 @@
         <argument key="debug.security.firewall" type="service" id="debug.security.firewall" on-invalid="ignore_uninitialized"/>
         <argument key="debug.security.firewall.authenticator.main" type="service" id="debug.security.firewall.authenticator.main" on-invalid="ignore_uninitialized"/>
         <argument key="cache.easyadmin" type="service" id="cache.easyadmin" on-invalid="ignore_uninitialized"/>
-        <argument key="debug.security.event_dispatcher.main" type="service" id="debug.security.event_dispatcher.main" on-invalid="ignore_uninitialized"/>
       </argument>
       <argument type="collection">
         <argument key="controller.cache_attribute_listener" type="collection">
@@ -489,13 +940,16 @@
         <argument key="cache.property_info" type="collection">
           <argument>reset</argument>
         </argument>
+        <argument key="cache.http_client.pool" type="collection">
+          <argument>reset</argument>
+        </argument>
+        <argument key="http_client.transport" type="collection">
+          <argument>?reset</argument>
+        </argument>
+        <argument key="http_client" type="collection">
+          <argument>?reset</argument>
+        </argument>
         <argument key="translation.locale_switcher" type="collection">
-          <argument>reset</argument>
-        </argument>
-        <argument key="debug.stopwatch" type="collection">
-          <argument>reset</argument>
-        </argument>
-        <argument key="debug.event_dispatcher" type="collection">
           <argument>reset</argument>
         </argument>
         <argument key="session_listener" type="collection">
@@ -554,9 +1008,6 @@
           <argument>reset</argument>
         </argument>
         <argument key="cache.easyadmin" type="collection">
-          <argument>reset</argument>
-        </argument>
-        <argument key="debug.security.event_dispatcher.main" type="collection">
           <argument>reset</argument>
         </argument>
       </argument>
@@ -636,7 +1087,7 @@
     <service id="fragment.renderer.inline" class="Symfony\Component\HttpKernel\Fragment\InlineFragmentRenderer">
       <tag name="kernel.fragment_renderer" alias="inline"/>
       <argument type="service" id="http_kernel"/>
-      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="event_dispatcher"/>
       <call method="setFragmentPath">
         <argument>/_fragment</argument>
       </call>
@@ -671,8 +1122,8 @@
       <tag name="messenger.message_handler" sign="true"/>
     </service>
     <service id="console.error_listener" class="Symfony\Component\Console\EventListener\ErrorListener">
-      <tag name="monolog.logger" channel="console"/>
       <tag name="kernel.event_subscriber"/>
+      <tag name="monolog.logger" channel="console"/>
       <tag name="container.no_preload"/>
       <argument type="service" id="logger" on-invalid="null"/>
     </service>
@@ -724,6 +1175,7 @@
         <argument>cache.validator</argument>
         <argument>cache.serializer</argument>
         <argument>cache.property_info</argument>
+        <argument>cache.http_client.pool</argument>
         <argument>cache.validator_expression_language</argument>
         <argument>cache.doctrine.orm.default.result</argument>
         <argument>cache.doctrine.orm.default.query</argument>
@@ -754,7 +1206,7 @@
     <service id="console.command.cache_pool_invalidate_tags" class="Symfony\Bundle\FrameworkBundle\Command\CachePoolInvalidateTagsCommand">
       <tag name="console.command"/>
       <tag name="container.no_preload"/>
-      <argument type="service" id=".service_locator.YDYHnos"/>
+      <argument type="service" id=".service_locator.6eloqTE"/>
       <call method="setName">
         <argument>cache:pool:invalidate-tags</argument>
       </call>
@@ -772,6 +1224,7 @@
         <argument>cache.validator</argument>
         <argument>cache.serializer</argument>
         <argument>cache.property_info</argument>
+        <argument>cache.http_client.pool</argument>
         <argument>cache.validator_expression_language</argument>
         <argument>cache.doctrine.orm.default.result</argument>
         <argument>cache.doctrine.orm.default.query</argument>
@@ -797,6 +1250,7 @@
         <argument>cache.validator</argument>
         <argument>cache.serializer</argument>
         <argument>cache.property_info</argument>
+        <argument>cache.http_client.pool</argument>
         <argument>cache.validator_expression_language</argument>
         <argument>cache.doctrine.orm.default.result</argument>
         <argument>cache.doctrine.orm.default.query</argument>
@@ -1367,6 +1821,7 @@
       <tag name="cache.pool.clearer"/>
       <argument type="collection">
         <argument key="cache.app" type="service" id="cache.app" on-invalid="ignore_uninitialized"/>
+        <argument key="cache.http_client.pool" type="service" id="cache.http_client.pool" on-invalid="ignore_uninitialized"/>
       </argument>
     </service>
     <service id="cache.system_clearer" class="Symfony\Component\HttpKernel\CacheClearer\Psr6CacheClearer" public="true">
@@ -1392,6 +1847,7 @@
         <argument key="cache.validator" type="service" id="cache.validator" on-invalid="ignore_uninitialized"/>
         <argument key="cache.serializer" type="service" id="cache.serializer" on-invalid="ignore_uninitialized"/>
         <argument key="cache.property_info" type="service" id="cache.property_info" on-invalid="ignore_uninitialized"/>
+        <argument key="cache.http_client.pool" type="service" id="cache.http_client.pool" on-invalid="ignore_uninitialized"/>
         <argument key="cache.validator_expression_language" type="service" id="cache.validator_expression_language" on-invalid="ignore_uninitialized"/>
         <argument key="cache.doctrine.orm.default.result" type="service" id="cache.doctrine.orm.default.result" on-invalid="ignore_uninitialized"/>
         <argument key="cache.doctrine.orm.default.query" type="service" id="cache.doctrine.orm.default.query" on-invalid="ignore_uninitialized"/>
@@ -1440,13 +1896,73 @@
     <service id="assets.empty_version_strategy" class="Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy"/>
     <service id="assets.json_manifest_version_strategy" class="Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy" abstract="true">
       <argument type="abstract">manifest path</argument>
-      <argument type="service" id="http_client" on-invalid="null"/>
+      <argument type="service" id="http_client.uri_template" on-invalid="null"/>
       <argument>false</argument>
     </service>
     <service id="assets._default_package" class="Symfony\Component\Asset\PathPackage">
       <argument/>
       <argument type="service" id="assets.empty_version_strategy"/>
       <argument type="service" id="assets.context"/>
+    </service>
+    <service id="cache.http_client.pool" class="Symfony\Component\Cache\Adapter\FilesystemAdapter" public="true">
+      <tag name="cache.pool"/>
+      <tag name="kernel.reset" method="reset"/>
+      <argument>YmKpl4rqFR</argument>
+      <argument>0</argument>
+      <argument>/var/www/backend/var/share/dev/pools/app</argument>
+      <argument type="service" id="cache.default_marshaller" on-invalid="ignore"/>
+      <call method="setLogger">
+        <argument type="service" id="logger" on-invalid="ignore"/>
+      </call>
+    </service>
+    <service id="cache.http_client" class="Symfony\Component\Cache\Adapter\TagAwareAdapter">
+      <tag name="cache.taggable" pool="cache.http_client.pool"/>
+      <argument type="service" id="cache.http_client.pool"/>
+    </service>
+    <service id="http_client.transport" class="Symfony\Contracts\HttpClient\HttpClientInterface">
+      <tag name="monolog.logger" channel="http_client"/>
+      <tag name="kernel.reset" method="reset" on_invalid="ignore"/>
+      <argument type="collection"/>
+      <argument>6</argument>
+      <call method="setLogger">
+        <argument type="service" id="logger" on-invalid="ignore"/>
+      </call>
+      <factory class="Symfony\Component\HttpClient\HttpClient" method="create"/>
+    </service>
+    <service id="http_client.abstract_retry_strategy" class="Symfony\Component\HttpClient\Retry\GenericRetryStrategy" abstract="true">
+      <argument type="abstract">http codes</argument>
+      <argument type="abstract">delay ms</argument>
+      <argument type="abstract">multiplier</argument>
+      <argument type="abstract">max delay ms</argument>
+      <argument type="abstract">jitter</argument>
+    </service>
+    <service id="http_client.uri_template" class="Symfony\Component\HttpClient\UriTemplateHttpClient">
+      <tag name="http_client.client"/>
+      <tag name="kernel.reset" method="reset" on_invalid="ignore"/>
+      <tag name="container.decorator" id="http_client" inner="http_client.uri_template.inner"/>
+      <argument type="service" id="http_client.uri_template.inner"/>
+      <argument>null</argument>
+      <argument type="collection"/>
+    </service>
+    <service id="http_client.uri_template_expander.guzzle" class="Closure">
+      <argument type="collection">
+        <argument>GuzzleHttp\UriTemplate\UriTemplate</argument>
+        <argument>expand</argument>
+      </argument>
+      <factory class="Closure" method="fromCallable"/>
+    </service>
+    <service id="http_client.uri_template_expander.rize" class="Closure">
+      <argument type="collection">
+        <argument type="service">
+          <service class="Rize\UriTemplate"/>
+        </argument>
+        <argument>expand</argument>
+      </argument>
+      <factory class="Closure" method="fromCallable"/>
+    </service>
+    <service id="http_client.messenger.ping_webhook_handler" class="Symfony\Component\HttpClient\Messenger\PingWebhookMessageHandler">
+      <tag name="messenger.message_handler"/>
+      <argument type="service" id="http_client.uri_template"/>
     </service>
     <service id="translator.default" class="Symfony\Bundle\FrameworkBundle\Translation\Translator">
       <tag name="kernel.locale_aware"/>
@@ -1829,7 +2345,6 @@
           <argument>/var/www/backend/vendor/symfony/framework-bundle/translations</argument>
           <argument>/var/www/backend/vendor/symfony/maker-bundle/translations</argument>
           <argument>/var/www/backend/vendor/doctrine/doctrine-bundle/translations</argument>
-          <argument>/var/www/backend/vendor/doctrine/doctrine-migrations-bundle/translations</argument>
           <argument>/var/www/backend/vendor/symfony/twig-bundle/translations</argument>
           <argument>/var/www/backend/vendor/twig/extra-bundle/translations</argument>
           <argument>/var/www/backend/vendor/symfony/ux-twig-component/translations</argument>
@@ -1845,7 +2360,6 @@
             <argument>vendor/symfony/framework-bundle/translations</argument>
             <argument>vendor/symfony/maker-bundle/translations</argument>
             <argument>vendor/doctrine/doctrine-bundle/translations</argument>
-            <argument>vendor/doctrine/doctrine-migrations-bundle/translations</argument>
             <argument>vendor/symfony/twig-bundle/translations</argument>
             <argument>vendor/twig/extra-bundle/translations</argument>
             <argument>vendor/symfony/ux-twig-component/translations</argument>
@@ -2188,437 +2702,6 @@
     <service id="debug.file_link_formatter" class="Symfony\Component\ErrorHandler\ErrorRenderer\FileLinkFormatter">
       <argument>%env(default::SYMFONY_IDE)%</argument>
     </service>
-    <service id="debug.stopwatch" class="Symfony\Component\Stopwatch\Stopwatch" public="true">
-      <tag name="kernel.reset" method="reset"/>
-      <argument>true</argument>
-    </service>
-    <service id="debug.event_dispatcher" class="Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher">
-      <tag name="container.hot_path"/>
-      <tag name="event_dispatcher">event_dispatcher.dispatcher</tag>
-      <tag name="monolog.logger" channel="event"/>
-      <tag name="kernel.reset" method="reset"/>
-      <tag name="container.decorator" id="event_dispatcher" inner="debug.event_dispatcher.inner"/>
-      <argument type="service" id="debug.event_dispatcher.inner"/>
-      <argument type="service" id="debug.stopwatch"/>
-      <argument type="service" id="logger" on-invalid="null"/>
-      <argument type="service" id="request_stack" on-invalid="null"/>
-      <argument>null</argument>
-      <call method="addListener">
-        <argument>kernel.response</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.csrf.same_origin_token_manager"/>
-          <argument>onKernelResponse</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>console.command</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="doctrine_migrations.schema_filter_listener"/>
-          <argument>onConsoleCommand</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.listener.user_provider"/>
-          <argument>checkPassport</argument>
-        </argument>
-        <argument>1024</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.response</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.context_listener.0"/>
-          <argument>onKernelResponse</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.exception</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\EventListener\ExceptionListener"/>
-          <argument>onKernelException</argument>
-        </argument>
-        <argument>-64</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.view</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\EventListener\CrudResponseListener"/>
-          <argument>onKernelView</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.response</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="response_listener"/>
-          <argument>onKernelResponse</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="locale_listener"/>
-          <argument>setDefaultLocale</argument>
-        </argument>
-        <argument>100</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="locale_listener"/>
-          <argument>onKernelRequest</argument>
-        </argument>
-        <argument>16</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.finish_request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="locale_listener"/>
-          <argument>onKernelFinishRequest</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="validate_request_listener"/>
-          <argument>onKernelRequest</argument>
-        </argument>
-        <argument>256</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.response</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="disallow_search_engine_index_response_listener"/>
-          <argument>onResponse</argument>
-        </argument>
-        <argument>-255</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.controller_arguments</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="exception_listener"/>
-          <argument>onControllerArguments</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.exception</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="exception_listener"/>
-          <argument>logKernelException</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.exception</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="exception_listener"/>
-          <argument>onKernelException</argument>
-        </argument>
-        <argument>-128</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.response</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="exception_listener"/>
-          <argument>removeCspHeader</argument>
-        </argument>
-        <argument>-128</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.controller_arguments</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="controller.cache_attribute_listener"/>
-          <argument>onKernelControllerArguments</argument>
-        </argument>
-        <argument>10</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.response</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="controller.cache_attribute_listener"/>
-          <argument>onKernelResponse</argument>
-        </argument>
-        <argument>-10</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.controller_arguments</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="controller.is_signature_valid_attribute_listener"/>
-          <argument>onKernelControllerArguments</argument>
-        </argument>
-        <argument>30</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="locale_aware_listener"/>
-          <argument>onKernelRequest</argument>
-        </argument>
-        <argument>15</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.finish_request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="locale_aware_listener"/>
-          <argument>onKernelFinishRequest</argument>
-        </argument>
-        <argument>-15</argument>
-      </call>
-      <call method="addListener">
-        <argument>console.error</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="console.error_listener"/>
-          <argument>onConsoleError</argument>
-        </argument>
-        <argument>-128</argument>
-      </call>
-      <call method="addListener">
-        <argument>console.terminate</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="console.error_listener"/>
-          <argument>onConsoleTerminate</argument>
-        </argument>
-        <argument>-128</argument>
-      </call>
-      <call method="addListener">
-        <argument>console.error</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="console.suggest_missing_package_subscriber"/>
-          <argument>onConsoleError</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="debug.debug_handlers_listener"/>
-          <argument>configure</argument>
-        </argument>
-        <argument>2048</argument>
-      </call>
-      <call method="addListener">
-        <argument>console.command</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="debug.debug_handlers_listener"/>
-          <argument>configure</argument>
-        </argument>
-        <argument>2048</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="router_listener"/>
-          <argument>onKernelRequest</argument>
-        </argument>
-        <argument>32</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.finish_request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="router_listener"/>
-          <argument>onKernelFinishRequest</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.exception</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="router_listener"/>
-          <argument>onKernelException</argument>
-        </argument>
-        <argument>-64</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="session_listener"/>
-          <argument>onKernelRequest</argument>
-        </argument>
-        <argument>128</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.response</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="session_listener"/>
-          <argument>onKernelResponse</argument>
-        </argument>
-        <argument>-1000</argument>
-      </call>
-      <call method="addListener">
-        <argument>console.error</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="maker.console_error_listener"/>
-          <argument>onConsoleError</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>console.terminate</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="maker.console_error_listener"/>
-          <argument>onConsoleTerminate</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="doctrine.dbal.idle_connection_listener"/>
-          <argument>onKernelRequest</argument>
-        </argument>
-        <argument>192</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.view</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="controller.template_attribute_listener"/>
-          <argument>onKernelView</argument>
-        </argument>
-        <argument>-128</argument>
-      </call>
-      <call method="addListener">
-        <argument>Symfony\UX\TwigComponent\Event\PreRenderEvent</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="ux.twig_component.component_logger_listener"/>
-          <argument>onPreRender</argument>
-        </argument>
-        <argument>255</argument>
-      </call>
-      <call method="addListener">
-        <argument>Symfony\UX\TwigComponent\Event\PostRenderEvent</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="ux.twig_component.component_logger_listener"/>
-          <argument>onPostRender</argument>
-        </argument>
-        <argument>-255</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.controller_arguments</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="controller.is_granted_attribute_listener"/>
-          <argument>onKernelControllerArguments</argument>
-        </argument>
-        <argument>20</argument>
-      </call>
-      <call method="addListener">
-        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.listener.check_authenticator_credentials"/>
-          <argument>checkPassport</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>Symfony\Component\Security\Http\Event\LoginSuccessEvent</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.listener.password_migrating"/>
-          <argument>onLoginSuccess</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>debug.security.authorization.vote</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="debug.security.voter.vote_listener"/>
-          <argument>onVoterVote</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="debug.security.firewall"/>
-          <argument>configureLogoutUrlGenerator</argument>
-        </argument>
-        <argument>8</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="debug.security.firewall"/>
-          <argument>onKernelRequest</argument>
-        </argument>
-        <argument>8</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.finish_request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="debug.security.firewall"/>
-          <argument>onKernelFinishRequest</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\EventListener\AdminRouterSubscriber"/>
-          <argument>onKernelRequestPrettyUrls</argument>
-        </argument>
-        <argument>1</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.request</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\EventListener\AdminRouterSubscriber"/>
-          <argument>onKernelRequest</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.controller</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\EventListener\AdminRouterSubscriber"/>
-          <argument>onKernelController</argument>
-        </argument>
-        <argument>128</argument>
-      </call>
-      <call method="addListener">
-        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.listener.csrf_protection"/>
-          <argument>checkPassport</argument>
-        </argument>
-        <argument>512</argument>
-      </call>
-      <call method="addListener">
-        <argument>kernel.controller_arguments</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="controller.is_csrf_token_valid_attribute_listener"/>
-          <argument>onKernelControllerArguments</argument>
-        </argument>
-        <argument>25</argument>
-      </call>
-      <call method="addListener">
-        <argument>Symfony\Component\Security\Http\Event\LogoutEvent</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.logout.listener.csrf_token_clearing"/>
-          <argument>onLogout</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-    </service>
-    <service id="debug.controller_resolver" class="Symfony\Component\HttpKernel\Controller\TraceableControllerResolver">
-      <tag name="monolog.logger" channel="request"/>
-      <tag name="container.decorator" id="controller_resolver" inner="debug.controller_resolver.inner"/>
-      <argument type="service" id="debug.controller_resolver.inner"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id="debug.argument_resolver" class="Symfony\Component\HttpKernel\Controller\TraceableArgumentResolver">
-      <tag name="container.decorator" id="argument_resolver" inner="debug.argument_resolver.inner"/>
-      <argument type="service" id="debug.argument_resolver.inner"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id="argument_resolver.not_tagged_controller" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
-      <tag name="controller.argument_value_resolver" priority="-200"/>
-      <argument type="service" id=".service_locator.8JS6QTA"/>
-    </service>
     <service id="routing.resolver" class="Symfony\Component\Config\Loader\LoaderResolver">
       <call method="addLoader">
         <argument type="service" id="routing.loader.xml"/>
@@ -2757,8 +2840,8 @@
       <argument type="service" id=".service_locator.mFBT25N.router.cache_warmer"/>
     </service>
     <service id="router_listener" class="Symfony\Component\HttpKernel\EventListener\RouterListener">
-      <tag name="monolog.logger" channel="request"/>
       <tag name="kernel.event_subscriber"/>
+      <tag name="monolog.logger" channel="request"/>
       <tag name="container.hot_path"/>
       <tag name="container.hot_path"/>
       <argument type="service" id="router.default"/>
@@ -2959,8 +3042,8 @@
       <factory class="Symfony\Component\HttpFoundation\Session\Storage\Handler\SessionHandlerFactory" method="createHandler"/>
     </service>
     <service id="session_listener" class="Symfony\Component\HttpKernel\EventListener\SessionListener">
-      <tag name="kernel.reset" method="reset"/>
       <tag name="kernel.event_subscriber"/>
+      <tag name="kernel.reset" method="reset"/>
       <tag name="container.hot_path"/>
       <tag name="container.hot_path"/>
       <argument type="service" id=".service_locator.MQ2K9ka"/>
@@ -3464,7 +3547,7 @@
     </service>
     <service id="validator.not_compromised_password" class="Symfony\Component\Validator\Constraints\NotCompromisedPasswordValidator">
       <tag name="validator.constraint_validator"/>
-      <argument>null</argument>
+      <argument type="service" id="http_client.uri_template" on-invalid="null"/>
       <argument>UTF-8</argument>
       <argument>true</argument>
       <argument>null</argument>
@@ -3510,7 +3593,7 @@
       <argument type="service" id="debug.file_link_formatter" on-invalid="ignore"/>
     </service>
     <service id="maker.event_registry" class="Symfony\Bundle\MakerBundle\EventRegistry">
-      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="event_dispatcher"/>
     </service>
     <service id="maker.console_error_listener" class="Symfony\Bundle\MakerBundle\Event\ConsoleErrorSubscriber">
       <tag name="kernel.event_subscriber"/>
@@ -3784,9 +3867,6 @@
     <service id="doctrine.dbal.default_connection.configuration" class="Doctrine\DBAL\Configuration">
       <call method="setSchemaManagerFactory">
         <argument type="service" id="doctrine.dbal.default_schema_manager_factory"/>
-      </call>
-      <call method="setSchemaAssetsFilter">
-        <argument type="service" id="doctrine.dbal.default_schema_asset_filter_manager"/>
       </call>
       <call method="setMiddlewares">
         <argument type="collection">
@@ -4174,210 +4254,6 @@
       <argument type="service" id="doctrine.orm.default_entity_manager"/>
       <argument>null</argument>
     </service>
-    <service id="doctrine.migrations.dependency_factory" class="Doctrine\Migrations\DependencyFactory" constructor="fromEntityManager">
-      <argument type="service" id="doctrine.migrations.configuration_loader"/>
-      <argument type="service" id="doctrine.migrations.entity_manager_registry_loader"/>
-      <argument type="service" id="logger" on-invalid="null"/>
-      <call method="setDefinition">
-        <argument>Doctrine\Migrations\Version\MigrationFactory</argument>
-        <argument type="service_closure" id="doctrine.migrations.migrations_factory"/>
-      </call>
-    </service>
-    <service id="doctrine.migrations.configuration_loader" class="Doctrine\Migrations\Configuration\Migration\ExistingConfiguration">
-      <argument type="service" id="doctrine.migrations.configuration"/>
-    </service>
-    <service id="doctrine.migrations.connection_loader" class="Doctrine\Migrations\Configuration\Connection\ExistingConnection"/>
-    <service id="doctrine.migrations.em_loader" class="Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager"/>
-    <service id="doctrine.migrations.entity_manager_registry_loader" class="Doctrine\Migrations\Configuration\EntityManager\ManagerRegistryEntityManager" constructor="withSimpleDefault">
-      <argument type="service" id="doctrine"/>
-    </service>
-    <service id="doctrine.migrations.connection_registry_loader" class="Doctrine\Migrations\Configuration\Connection\ConnectionRegistryConnection" constructor="withSimpleDefault">
-      <argument type="service" id="doctrine"/>
-    </service>
-    <service id="doctrine.migrations.configuration" class="Doctrine\Migrations\Configuration\Configuration">
-      <call method="addMigrationsDirectory">
-        <argument>DoctrineMigrations</argument>
-        <argument>/var/www/backend/migrations</argument>
-      </call>
-      <call method="setAllOrNothing">
-        <argument>false</argument>
-      </call>
-      <call method="setCheckDatabasePlatform">
-        <argument>true</argument>
-      </call>
-      <call method="setTransactional">
-        <argument>true</argument>
-      </call>
-      <call method="setMetadataStorageConfiguration">
-        <argument type="service" id="doctrine.migrations.storage.table_storage"/>
-      </call>
-    </service>
-    <service id="doctrine.migrations.migrations_factory" class="Doctrine\Migrations\Version\MigrationFactory">
-      <factory service="doctrine.migrations.dependency_factory" method="getMigrationFactory"/>
-    </service>
-    <service id="doctrine_migrations.diff_command" class="Doctrine\Migrations\Tools\Console\Command\DiffCommand">
-      <tag name="console.command" command="doctrine:migrations:diff"/>
-      <tag name="container.no_preload"/>
-      <argument type="service" id="doctrine.migrations.dependency_factory"/>
-      <argument>doctrine:migrations:diff</argument>
-      <call method="setName">
-        <argument>doctrine:migrations:diff</argument>
-      </call>
-      <call method="setDescription">
-        <argument>Generate a migration by comparing your current database to your mapping information.</argument>
-      </call>
-    </service>
-    <service id="doctrine_migrations.sync_metadata_command" class="Doctrine\Migrations\Tools\Console\Command\SyncMetadataCommand">
-      <tag name="console.command" command="doctrine:migrations:sync-metadata-storage"/>
-      <tag name="container.no_preload"/>
-      <argument type="service" id="doctrine.migrations.dependency_factory"/>
-      <argument>doctrine:migrations:sync-metadata-storage</argument>
-      <call method="setName">
-        <argument>doctrine:migrations:sync-metadata-storage</argument>
-      </call>
-      <call method="setDescription">
-        <argument>Ensures that the metadata storage is at the latest version.</argument>
-      </call>
-    </service>
-    <service id="doctrine_migrations.versions_command" class="Doctrine\Migrations\Tools\Console\Command\ListCommand">
-      <tag name="console.command" command="doctrine:migrations:list"/>
-      <tag name="container.no_preload"/>
-      <argument type="service" id="doctrine.migrations.dependency_factory"/>
-      <argument>doctrine:migrations:versions</argument>
-      <call method="setName">
-        <argument>doctrine:migrations:list</argument>
-      </call>
-      <call method="setDescription">
-        <argument>Display a list of all available migrations and their status.</argument>
-      </call>
-    </service>
-    <service id="doctrine_migrations.current_command" class="Doctrine\Migrations\Tools\Console\Command\CurrentCommand">
-      <tag name="console.command" command="doctrine:migrations:current"/>
-      <tag name="container.no_preload"/>
-      <argument type="service" id="doctrine.migrations.dependency_factory"/>
-      <argument>doctrine:migrations:current</argument>
-      <call method="setName">
-        <argument>doctrine:migrations:current</argument>
-      </call>
-      <call method="setDescription">
-        <argument>Outputs the current version</argument>
-      </call>
-    </service>
-    <service id="doctrine_migrations.dump_schema_command" class="Doctrine\Migrations\Tools\Console\Command\DumpSchemaCommand">
-      <tag name="console.command" command="doctrine:migrations:dump-schema"/>
-      <tag name="container.no_preload"/>
-      <argument type="service" id="doctrine.migrations.dependency_factory"/>
-      <argument>doctrine:migrations:dump-schema</argument>
-      <call method="setName">
-        <argument>doctrine:migrations:dump-schema</argument>
-      </call>
-      <call method="setDescription">
-        <argument>Dump the schema for your database to a migration.</argument>
-      </call>
-    </service>
-    <service id="doctrine_migrations.execute_command" class="Doctrine\Migrations\Tools\Console\Command\ExecuteCommand">
-      <tag name="console.command" command="doctrine:migrations:execute"/>
-      <tag name="container.no_preload"/>
-      <argument type="service" id="doctrine.migrations.dependency_factory"/>
-      <argument>doctrine:migrations:execute</argument>
-      <call method="setName">
-        <argument>doctrine:migrations:execute</argument>
-      </call>
-      <call method="setDescription">
-        <argument>Execute one or more migration versions up or down manually.</argument>
-      </call>
-    </service>
-    <service id="doctrine_migrations.generate_command" class="Doctrine\Migrations\Tools\Console\Command\GenerateCommand">
-      <tag name="console.command" command="doctrine:migrations:generate"/>
-      <tag name="container.no_preload"/>
-      <argument type="service" id="doctrine.migrations.dependency_factory"/>
-      <argument>doctrine:migrations:generate</argument>
-      <call method="setName">
-        <argument>doctrine:migrations:generate</argument>
-      </call>
-      <call method="setDescription">
-        <argument>Generate a blank migration class.</argument>
-      </call>
-    </service>
-    <service id="doctrine_migrations.latest_command" class="Doctrine\Migrations\Tools\Console\Command\LatestCommand">
-      <tag name="console.command" command="doctrine:migrations:latest"/>
-      <tag name="container.no_preload"/>
-      <argument type="service" id="doctrine.migrations.dependency_factory"/>
-      <argument>doctrine:migrations:latest</argument>
-      <call method="setName">
-        <argument>doctrine:migrations:latest</argument>
-      </call>
-      <call method="setDescription">
-        <argument>Outputs the latest version</argument>
-      </call>
-    </service>
-    <service id="doctrine_migrations.migrate_command" class="Doctrine\Migrations\Tools\Console\Command\MigrateCommand">
-      <tag name="console.command" command="doctrine:migrations:migrate"/>
-      <tag name="container.no_preload"/>
-      <argument type="service" id="doctrine.migrations.dependency_factory"/>
-      <argument>doctrine:migrations:migrate</argument>
-      <call method="setName">
-        <argument>doctrine:migrations:migrate</argument>
-      </call>
-      <call method="setDescription">
-        <argument>Execute a migration to a specified version or the latest available version.</argument>
-      </call>
-    </service>
-    <service id="doctrine_migrations.rollup_command" class="Doctrine\Migrations\Tools\Console\Command\RollupCommand">
-      <tag name="console.command" command="doctrine:migrations:rollup"/>
-      <tag name="container.no_preload"/>
-      <argument type="service" id="doctrine.migrations.dependency_factory"/>
-      <argument>doctrine:migrations:rollup</argument>
-      <call method="setName">
-        <argument>doctrine:migrations:rollup</argument>
-      </call>
-      <call method="setDescription">
-        <argument>Rollup migrations by deleting all tracked versions and insert the one version that exists.</argument>
-      </call>
-    </service>
-    <service id="doctrine_migrations.status_command" class="Doctrine\Migrations\Tools\Console\Command\StatusCommand">
-      <tag name="console.command" command="doctrine:migrations:status"/>
-      <tag name="container.no_preload"/>
-      <argument type="service" id="doctrine.migrations.dependency_factory"/>
-      <argument>doctrine:migrations:status</argument>
-      <call method="setName">
-        <argument>doctrine:migrations:status</argument>
-      </call>
-      <call method="setDescription">
-        <argument>View the status of a set of migrations.</argument>
-      </call>
-    </service>
-    <service id="doctrine_migrations.up_to_date_command" class="Doctrine\Migrations\Tools\Console\Command\UpToDateCommand">
-      <tag name="console.command" command="doctrine:migrations:up-to-date"/>
-      <tag name="container.no_preload"/>
-      <argument type="service" id="doctrine.migrations.dependency_factory"/>
-      <argument>doctrine:migrations:up-to-date</argument>
-      <call method="setName">
-        <argument>doctrine:migrations:up-to-date</argument>
-      </call>
-      <call method="setDescription">
-        <argument>Tells you if your schema is up-to-date.</argument>
-      </call>
-    </service>
-    <service id="doctrine_migrations.version_command" class="Doctrine\Migrations\Tools\Console\Command\VersionCommand">
-      <tag name="console.command" command="doctrine:migrations:version"/>
-      <tag name="container.no_preload"/>
-      <argument type="service" id="doctrine.migrations.dependency_factory"/>
-      <argument>doctrine:migrations:version</argument>
-      <call method="setName">
-        <argument>doctrine:migrations:version</argument>
-      </call>
-      <call method="setDescription">
-        <argument>Manually add and delete migration versions from the version table.</argument>
-      </call>
-    </service>
-    <service id="doctrine_migrations.schema_filter_listener" class="Doctrine\Bundle\MigrationsBundle\EventListener\SchemaFilterListener">
-      <tag name="doctrine.dbal.schema_filter" connection="default"/>
-      <tag name="kernel.event_listener" event="console.command" method="onConsoleCommand"/>
-      <tag name="container.no_preload"/>
-      <argument>doctrine_migration_versions</argument>
-    </service>
-    <service id="doctrine.migrations.storage.table_storage" class="Doctrine\Migrations\Metadata\Storage\TableMetadataStorageConfiguration"/>
     <service id="twig" class="Twig\Environment">
       <tag name="container.preload" class="Twig\Cache\FilesystemCache"/>
       <tag name="container.preload" class="Twig\Extension\CoreExtension"/>
@@ -4414,9 +4290,6 @@
       </call>
       <call method="addExtension">
         <argument type="service" id="twig.extension.yaml"/>
-      </call>
-      <call method="addExtension">
-        <argument type="service" id="twig.extension.debug.stopwatch"/>
       </call>
       <call method="addExtension">
         <argument type="service" id="twig.extension.httpkernel"/>
@@ -4538,14 +4411,6 @@
         <argument>!Doctrine</argument>
       </call>
       <call method="addPath">
-        <argument>/var/www/backend/vendor/doctrine/doctrine-migrations-bundle/templates</argument>
-        <argument>DoctrineMigrations</argument>
-      </call>
-      <call method="addPath">
-        <argument>/var/www/backend/vendor/doctrine/doctrine-migrations-bundle/templates</argument>
-        <argument>!DoctrineMigrations</argument>
-      </call>
-      <call method="addPath">
         <argument>/var/www/backend/vendor/symfony/ux-twig-component/templates</argument>
         <argument>TwigComponent</argument>
       </call>
@@ -4580,7 +4445,7 @@
     <service id="twig.extension.profiler" class="Symfony\Bridge\Twig\Extension\ProfilerExtension">
       <tag name="twig.extension"/>
       <argument type="service" id="twig.profile"/>
-      <argument type="service" id="debug.stopwatch" on-invalid="ignore"/>
+      <argument>null</argument>
     </service>
     <service id="twig.profile" class="Twig\Profiler\Profile"/>
     <service id="data_collector.twig" class="Symfony\Bridge\Twig\DataCollector\TwigDataCollector">
@@ -4604,8 +4469,7 @@
       <tag name="twig.extension"/>
     </service>
     <service id="twig.extension.debug.stopwatch" class="Symfony\Bridge\Twig\Extension\StopwatchExtension">
-      <tag name="twig.extension"/>
-      <argument type="service" id="debug.stopwatch" on-invalid="ignore"/>
+      <argument>null</argument>
       <argument>true</argument>
     </service>
     <service id="twig.extension.htmlsanitizer" class="Symfony\Bridge\Twig\Extension\HtmlSanitizerExtension">
@@ -4715,7 +4579,7 @@
       <argument type="service" id="ux.twig_component.component_template_finder"/>
       <argument type="service" id=".service_locator.Oq5EhCx"/>
       <argument type="service" id="property_accessor"/>
-      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="event_dispatcher"/>
       <argument type="collection">
         <argument key="ea:Icon" type="collection">
           <argument key="key">ea:Icon</argument>
@@ -4767,7 +4631,7 @@
     <service id="ux.twig_component.component_renderer" class="Symfony\UX\TwigComponent\ComponentRenderer">
       <tag name="kernel.reset" method="reset"/>
       <argument type="service" id="twig"/>
-      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="event_dispatcher"/>
       <argument type="service" id="ux.twig_component.component_factory"/>
       <argument type="service" id="ux.twig_component.component_properties"/>
       <argument type="service" id="ux.twig_component.component_stack"/>
@@ -5052,7 +4916,7 @@
       </argument>
       <argument type="abstract">Provider Key</argument>
       <argument type="service" id="logger" on-invalid="null"/>
-      <argument type="service" id="debug.event_dispatcher" on-invalid="null"/>
+      <argument type="service" id="event_dispatcher" on-invalid="null"/>
       <argument type="service" id="security.authentication.trust_resolver"/>
       <argument type="collection">
         <argument type="service" id="security.token_storage"/>
@@ -5083,7 +4947,7 @@
       <argument type="service" id="security.authentication.failure_handler"/>
       <argument type="collection"/>
       <argument type="service" id="logger" on-invalid="null"/>
-      <argument type="service" id="debug.event_dispatcher" on-invalid="null"/>
+      <argument type="service" id="event_dispatcher" on-invalid="null"/>
     </service>
     <service id="security.authentication.custom_success_handler" class="Symfony\Component\Security\Http\Authentication\CustomAuthenticationSuccessHandler" abstract="true">
       <argument type="abstract">The custom success handler service</argument>
@@ -5128,7 +4992,7 @@
       <argument type="service" id="logger" on-invalid="null"/>
       <argument>_switch_user</argument>
       <argument>ROLE_ALLOWED_TO_SWITCH</argument>
-      <argument type="service" id="debug.event_dispatcher" on-invalid="null"/>
+      <argument type="service" id="event_dispatcher" on-invalid="null"/>
       <argument>false</argument>
       <argument type="service" id="router.default" on-invalid="null"/>
       <argument type="abstract">Target Route</argument>
@@ -5141,14 +5005,14 @@
     </service>
     <service id="security.firewall.event_dispatcher_locator" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <argument type="collection">
-        <argument key="main" type="service_closure" id="debug.security.event_dispatcher.main"/>
+        <argument key="main" type="service_closure" id="security.event_dispatcher.main"/>
       </argument>
     </service>
     <service id="security.authenticator.manager" class="Symfony\Component\Security\Http\Authentication\AuthenticatorManager" abstract="true">
       <tag name="monolog.logger" channel="security"/>
       <argument type="abstract">authenticators</argument>
       <argument type="service" id="security.token_storage"/>
-      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="event_dispatcher"/>
       <argument type="abstract">provider key</argument>
       <argument type="service" id="logger" on-invalid="null"/>
       <argument>true</argument>
@@ -5251,7 +5115,7 @@
     </service>
     <service id="security.access_token_handler.oidc_user_info.http_client" class="Symfony\Contracts\HttpClient\HttpClientInterface" abstract="true">
       <argument type="abstract">http client options</argument>
-      <factory service="http_client" method="withOptions"/>
+      <factory service="http_client.uri_template" method="withOptions"/>
     </service>
     <service id="security.access_token_handler.oidc_user_info" class="Symfony\Component\Security\Http\AccessToken\Oidc\OidcUserInfoTokenHandler" abstract="true">
       <argument type="abstract">http client</argument>
@@ -5269,7 +5133,7 @@
     </service>
     <service id="security.access_token_handler.oidc_discovery.http_client" class="Symfony\Contracts\HttpClient\HttpClientInterface" abstract="true">
       <argument type="abstract">http client options</argument>
-      <factory service="http_client" method="withOptions"/>
+      <factory service="http_client.uri_template" method="withOptions"/>
     </service>
     <service id="security.access_token_handler.oidc.jwk" class="Jose\Component\Core\JWK" constructor="createFromJson" abstract="true">
       <argument type="abstract">signature key</argument>
@@ -5347,7 +5211,7 @@
       <tag name="security.access_token_handler.oidc.encryption_algorithm"/>
     </service>
     <service id="security.access_token_handler.oauth2" class="Symfony\Component\Security\Http\AccessToken\OAuth2\Oauth2TokenHandler" abstract="true">
-      <argument type="service" id="http_client"/>
+      <argument type="service" id="http_client.uri_template"/>
       <argument type="service" id="logger" on-invalid="null"/>
     </service>
     <service id="security.access_token_handler.oidc.generator" class="Symfony\Component\Security\Http\AccessToken\Oidc\OidcTokenGenerator" abstract="true">
@@ -5386,13 +5250,13 @@
       <argument type="service" id="debug.security.access.decision_manager"/>
     </service>
     <service id="debug.security.firewall" class="Symfony\Bundle\SecurityBundle\Debug\TraceableFirewallListener">
-      <tag name="kernel.reset" method="reset"/>
       <tag name="kernel.event_subscriber"/>
+      <tag name="kernel.reset" method="reset"/>
       <tag name="container.hot_path"/>
       <tag name="container.hot_path"/>
       <tag name="container.hot_path"/>
       <argument type="service" id="security.firewall.map"/>
-      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="event_dispatcher"/>
       <argument type="service" id="security.logout_url_generator"/>
     </service>
     <service id="security.command.debug_firewall" class="Symfony\Bundle\SecurityBundle\Command\DebugFirewallCommand">
@@ -5460,8 +5324,83 @@
       <argument>null</argument>
     </service>
     <service id="security.listener.main.user_provider" class="Symfony\Component\Security\Http\EventListener\UserProviderListener">
-      <tag name="kernel.event_listener" dispatcher="debug.security.event_dispatcher.main" event="Symfony\Component\Security\Http\Event\CheckPassportEvent" priority="2048" method="checkPassport"/>
+      <tag name="kernel.event_listener" dispatcher="security.event_dispatcher.main" event="Symfony\Component\Security\Http\Event\CheckPassportEvent" priority="2048" method="checkPassport"/>
       <argument type="service" id="security.user.provider.concrete.users_in_memory"/>
+    </service>
+    <service id="security.event_dispatcher.main" class="Symfony\Component\EventDispatcher\EventDispatcher">
+      <tag name="security.event_dispatcher.main">event_dispatcher.dispatcher</tag>
+      <call method="addListener">
+        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.listener.main.user_provider"/>
+          <argument>checkPassport</argument>
+        </argument>
+        <argument>2048</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Security\Http\Event\LoginSuccessEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.listener.session.main"/>
+          <argument>onSuccessfulLogin</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.listener.user_checker.main"/>
+          <argument>preCheckCredentials</argument>
+        </argument>
+        <argument>256</argument>
+      </call>
+      <call method="addListener">
+        <argument>security.authentication.success</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.listener.user_checker.main"/>
+          <argument>postCheckCredentials</argument>
+        </argument>
+        <argument>256</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.listener.user_provider"/>
+          <argument>checkPassport</argument>
+        </argument>
+        <argument>1024</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.listener.check_authenticator_credentials"/>
+          <argument>checkPassport</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Security\Http\Event\LoginSuccessEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.listener.password_migrating"/>
+          <argument>onLoginSuccess</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.listener.csrf_protection"/>
+          <argument>checkPassport</argument>
+        </argument>
+        <argument>512</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Security\Http\Event\LogoutEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="security.logout.listener.csrf_token_clearing"/>
+          <argument>onLogout</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
     </service>
     <service id="security.user_checker.chain.main" class="Symfony\Component\Security\Core\User\ChainUserChecker">
       <argument type="tagged_iterator" tag="security.user_checker.main"/>
@@ -5475,7 +5414,7 @@
       </argument>
       <argument>main</argument>
       <argument type="service" id="logger" on-invalid="null"/>
-      <argument type="service" id="debug.security.event_dispatcher.main"/>
+      <argument type="service" id="security.event_dispatcher.main"/>
       <argument type="service" id="security.authentication.trust_resolver"/>
       <argument type="collection">
         <argument type="service" id="security.token_storage"/>
@@ -5483,14 +5422,14 @@
       </argument>
     </service>
     <service id="security.listener.session.main" class="Symfony\Component\Security\Http\EventListener\SessionStrategyListener">
-      <tag name="kernel.event_subscriber" dispatcher="debug.security.event_dispatcher.main"/>
+      <tag name="kernel.event_subscriber" dispatcher="security.event_dispatcher.main"/>
       <argument type="service" id="security.authentication.session_strategy"/>
     </service>
     <service id="security.authenticator.manager.main" class="Symfony\Component\Security\Http\Authentication\AuthenticatorManager">
       <tag name="monolog.logger" channel="security"/>
       <argument type="collection"/>
       <argument type="service" id="security.token_storage"/>
-      <argument type="service" id="debug.security.event_dispatcher.main"/>
+      <argument type="service" id="security.event_dispatcher.main"/>
       <argument>main</argument>
       <argument type="service" id="logger" on-invalid="null"/>
       <argument>true</argument>
@@ -5503,7 +5442,7 @@
       <argument type="service" id="debug.security.firewall.authenticator.main.inner"/>
     </service>
     <service id="security.listener.user_checker.main" class="Symfony\Component\Security\Http\EventListener\UserCheckerListener">
-      <tag name="kernel.event_subscriber" dispatcher="debug.security.event_dispatcher.main"/>
+      <tag name="kernel.event_subscriber" dispatcher="security.event_dispatcher.main"/>
       <argument type="service" id="security.user_checker"/>
     </service>
     <service id="security.exception_listener.main" class="Symfony\Component\Security\Http\Firewall\ExceptionListener">
@@ -5643,7 +5582,7 @@
       <tag name="container.hot_path"/>
       <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\Factory\AdminContextFactory"/>
       <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\Factory\ControllerFactory"/>
-      <argument type="service" id="debug.controller_resolver"/>
+      <argument type="service" id="controller_resolver"/>
       <argument type="service" id="router.default"/>
       <argument type="service" id="router.default"/>
       <argument type="service" id="cache.easyadmin"/>
@@ -5652,7 +5591,7 @@
       <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\Registry\CrudControllerRegistry"/>
     </service>
     <service id="EasyCorp\Bundle\EasyAdminBundle\Factory\ControllerFactory" class="EasyCorp\Bundle\EasyAdminBundle\Factory\ControllerFactory">
-      <argument type="service" id="debug.controller_resolver"/>
+      <argument type="service" id="controller_resolver"/>
     </service>
     <service id="EasyCorp\Bundle\EasyAdminBundle\EventListener\CrudResponseListener" class="EasyCorp\Bundle\EasyAdminBundle\EventListener\CrudResponseListener">
       <tag name="kernel.event_listener" event="Symfony\Component\HttpKernel\Event\ViewEvent"/>
@@ -5726,12 +5665,12 @@
       <argument type="service" id="doctrine"/>
       <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\Factory\EntityFactory"/>
       <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\Factory\FormFactory"/>
-      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="event_dispatcher"/>
     </service>
     <service id="EasyCorp\Bundle\EasyAdminBundle\Factory\EntityFactory" class="EasyCorp\Bundle\EasyAdminBundle\Factory\EntityFactory">
       <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\Security\AuthorizationChecker"/>
       <argument type="service" id="doctrine"/>
-      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="event_dispatcher"/>
     </service>
     <service id="EasyCorp\Bundle\EasyAdminBundle\Orm\EntityPaginator" class="EasyCorp\Bundle\EasyAdminBundle\Orm\EntityPaginator">
       <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator"/>
@@ -5932,6 +5871,13 @@
     <service id="EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Alert" class="EasyCorp\Bundle\EasyAdminBundle\Twig\Component\Alert" shared="false">
       <tag name="twig.component"/>
     </service>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\Admin\DashboardController" class="App\Controller\Admin\DashboardController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\Admin\DashboardController" class="App\Controller\Admin\DashboardController" autowire="true" abstract="true"/>
+    <service id=".instanceof.EasyCorp\Bundle\EasyAdminBundle\Contracts\Controller\DashboardControllerInterface.0.App\Controller\Admin\DashboardController" class="App\Controller\Admin\DashboardController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\Admin\DashboardController" class="App\Controller\Admin\DashboardController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\Admin\UsuarioCrudController" class="App\Controller\Admin\UsuarioCrudController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\Admin\UsuarioCrudController" class="App\Controller\Admin\UsuarioCrudController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\Admin\UsuarioCrudController" class="App\Controller\Admin\UsuarioCrudController" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.EasyCorp\Bundle\EasyAdminBundle\Contracts\Filter\FilterConfiguratorInterface.0.EasyCorp\Bundle\EasyAdminBundle\Filter\Configurator\ChoiceConfigurator" class="EasyCorp\Bundle\EasyAdminBundle\Filter\Configurator\ChoiceConfigurator" abstract="true"/>
     <service id=".abstract.instanceof.EasyCorp\Bundle\EasyAdminBundle\Filter\Configurator\ChoiceConfigurator" class="EasyCorp\Bundle\EasyAdminBundle\Filter\Configurator\ChoiceConfigurator" abstract="true"/>
     <service id=".instanceof.EasyCorp\Bundle\EasyAdminBundle\Contracts\Filter\FilterConfiguratorInterface.0.EasyCorp\Bundle\EasyAdminBundle\Filter\Configurator\CommonConfigurator" class="EasyCorp\Bundle\EasyAdminBundle\Filter\Configurator\CommonConfigurator" abstract="true"/>
@@ -6418,88 +6364,6 @@
         <argument>Create a new Webhook</argument>
       </call>
     </service>
-    <service id="debug.security.event_dispatcher.main" class="Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcher">
-      <tag name="security.event_dispatcher.main">event_dispatcher.dispatcher</tag>
-      <tag name="monolog.logger" channel="event"/>
-      <tag name="kernel.reset" method="reset"/>
-      <tag name="container.decorator" id="security.event_dispatcher.main" inner="debug.security.event_dispatcher.main.inner"/>
-      <argument type="service" id="debug.security.event_dispatcher.main.inner"/>
-      <argument type="service" id="debug.stopwatch"/>
-      <argument type="service" id="logger" on-invalid="null"/>
-      <argument type="service" id="request_stack" on-invalid="null"/>
-      <call method="addListener">
-        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.listener.main.user_provider"/>
-          <argument>checkPassport</argument>
-        </argument>
-        <argument>2048</argument>
-      </call>
-      <call method="addListener">
-        <argument>Symfony\Component\Security\Http\Event\LoginSuccessEvent</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.listener.session.main"/>
-          <argument>onSuccessfulLogin</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.listener.user_checker.main"/>
-          <argument>preCheckCredentials</argument>
-        </argument>
-        <argument>256</argument>
-      </call>
-      <call method="addListener">
-        <argument>security.authentication.success</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.listener.user_checker.main"/>
-          <argument>postCheckCredentials</argument>
-        </argument>
-        <argument>256</argument>
-      </call>
-      <call method="addListener">
-        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.listener.user_provider"/>
-          <argument>checkPassport</argument>
-        </argument>
-        <argument>1024</argument>
-      </call>
-      <call method="addListener">
-        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.listener.check_authenticator_credentials"/>
-          <argument>checkPassport</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>Symfony\Component\Security\Http\Event\LoginSuccessEvent</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.listener.password_migrating"/>
-          <argument>onLoginSuccess</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-      <call method="addListener">
-        <argument>Symfony\Component\Security\Http\Event\CheckPassportEvent</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.listener.csrf_protection"/>
-          <argument>checkPassport</argument>
-        </argument>
-        <argument>512</argument>
-      </call>
-      <call method="addListener">
-        <argument>Symfony\Component\Security\Http\Event\LogoutEvent</argument>
-        <argument type="collection">
-          <argument type="service_closure" id="security.logout.listener.csrf_token_clearing"/>
-          <argument>onLogout</argument>
-        </argument>
-        <argument>0</argument>
-      </call>
-    </service>
     <service id=".service_locator.1vYpZ1B" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
@@ -6518,15 +6382,29 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.1vYpZ1B" method="withContext"/>
     </service>
-    <service id=".service_locator.8JS6QTA" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.nbA6iHG" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="user" type="service_closure" id=".errored..service_locator.nbA6iHG.Symfony\Component\Security\Core\User\UserInterface"/>
+      </argument>
+    </service>
+    <service id=".service_locator.nbA6iHG.App\Controller\Admin\DashboardController::configureUserMenu()" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\Admin\DashboardController::configureUserMenu()"/>
+      <argument>App\Controller\Admin\DashboardController::configureUserMenu()</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.nbA6iHG" method="withContext"/>
+    </service>
+    <service id=".service_locator.jX8UL.u" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.1vYpZ1B.kernel::registerContainerConfiguration()"/>
         <argument key="App\Kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.1vYpZ1B.kernel::registerContainerConfiguration()"/>
         <argument key="kernel::loadRoutes" type="service_closure" id=".service_locator.1vYpZ1B.kernel::loadRoutes()"/>
         <argument key="App\Kernel::loadRoutes" type="service_closure" id=".service_locator.1vYpZ1B.kernel::loadRoutes()"/>
+        <argument key="App\Controller\Admin\DashboardController::configureUserMenu" type="service_closure" id=".service_locator.nbA6iHG.App\Controller\Admin\DashboardController::configureUserMenu()"/>
         <argument key="kernel:registerContainerConfiguration" type="service_closure" id=".service_locator.1vYpZ1B.kernel::registerContainerConfiguration()"/>
         <argument key="kernel:loadRoutes" type="service_closure" id=".service_locator.1vYpZ1B.kernel::loadRoutes()"/>
+        <argument key="App\Controller\Admin\DashboardController:configureUserMenu" type="service_closure" id=".service_locator.nbA6iHG.App\Controller\Admin\DashboardController::configureUserMenu()"/>
       </argument>
     </service>
     <service id=".service_locator.DA6YX9k" class="Symfony\Component\DependencyInjection\ServiceLocator">
@@ -6550,74 +6428,6 @@
       <argument type="collection">
         <argument key="inline" type="service_closure" id="fragment.renderer.inline"/>
       </argument>
-    </service>
-    <service id=".debug.value_resolver.security.user_value_resolver" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="security.user_value_resolver"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.security.security_token_value_resolver" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="security.security_token_value_resolver"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.doctrine.orm.entity_value_resolver" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="doctrine.orm.entity_value_resolver"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.argument_resolver.backed_enum_resolver" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="argument_resolver.backed_enum_resolver"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.argument_resolver.uid" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="argument_resolver.uid"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.argument_resolver.datetime" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="argument_resolver.datetime"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.argument_resolver.request_attribute" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="argument_resolver.request_attribute"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.argument_resolver.request" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="argument_resolver.request"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.argument_resolver.session" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="argument_resolver.session"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\AdminContextResolver" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\AdminContextResolver"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\BatchActionDtoResolver" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\BatchActionDtoResolver"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.argument_resolver.service" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="argument_resolver.service"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.argument_resolver.default" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="argument_resolver.default"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.argument_resolver.variadic" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="argument_resolver.variadic"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.argument_resolver.not_tagged_controller" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="argument_resolver.not_tagged_controller"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.argument_resolver.request_payload" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="argument_resolver.request_payload"/>
-      <argument type="service" id="debug.stopwatch"/>
-    </service>
-    <service id=".debug.value_resolver.argument_resolver.query_parameter_value_resolver" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
-      <argument type="service" id="argument_resolver.query_parameter_value_resolver"/>
-      <argument type="service" id="debug.stopwatch"/>
     </service>
     <service id=".service_locator.oidhb33" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
@@ -6658,14 +6468,9 @@
       <argument type="service" id=".doctrine.orm.default_metadata_driver.inner"/>
       <argument type="service" id=".service_locator.W55Po6X"/>
     </service>
-    <service id="doctrine.dbal.default_schema_asset_filter_manager" class="Doctrine\Bundle\DoctrineBundle\Dbal\SchemaAssetsFilterManager">
-      <argument type="collection">
-        <argument type="service" id="doctrine_migrations.schema_filter_listener"/>
-      </argument>
-    </service>
     <service id="doctrine.dbal.debug_middleware.default" class="Doctrine\Bundle\DoctrineBundle\Middleware\DebugMiddleware">
       <argument type="service" id="doctrine.debug_data_holder"/>
-      <argument type="service" id="debug.stopwatch" on-invalid="null"/>
+      <argument>null</argument>
       <call method="setConnectionName">
         <argument>default</argument>
       </call>
@@ -6689,19 +6494,19 @@
     </service>
     <service id=".debug.security.voter.security.access.authenticated_voter" class="Symfony\Component\Security\Core\Authorization\Voter\TraceableVoter">
       <argument type="service" id="security.access.authenticated_voter"/>
-      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="event_dispatcher"/>
     </service>
     <service id=".debug.security.voter.security.access.simple_role_voter" class="Symfony\Component\Security\Core\Authorization\Voter\TraceableVoter">
       <argument type="service" id="security.access.simple_role_voter"/>
-      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="event_dispatcher"/>
     </service>
     <service id=".debug.security.voter.security.access.closure_voter" class="Symfony\Component\Security\Core\Authorization\Voter\TraceableVoter">
       <argument type="service" id="security.access.closure_voter"/>
-      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="event_dispatcher"/>
     </service>
     <service id=".debug.security.voter.EasyCorp\Bundle\EasyAdminBundle\Security\SecurityVoter" class="Symfony\Component\Security\Core\Authorization\Voter\TraceableVoter">
       <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\Security\SecurityVoter"/>
-      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id="event_dispatcher"/>
     </service>
     <service id="security.listener.csrf_protection" class="Symfony\Component\Security\Http\EventListener\CsrfProtectionListener">
       <tag name="kernel.event_subscriber"/>
@@ -6722,8 +6527,12 @@
     </service>
     <service id="EasyCorp\Bundle\EasyAdminBundle\Registry\DashboardControllerRegistry" class="EasyCorp\Bundle\EasyAdminBundle\Registry\DashboardControllerRegistry">
       <argument>/var/www/backend/var/cache/dev</argument>
-      <argument type="collection"/>
-      <argument type="collection"/>
+      <argument type="collection">
+        <argument key="App\Controller\Admin\DashboardController">c304e92</argument>
+      </argument>
+      <argument type="collection">
+        <argument key="c304e92">App\Controller\Admin\DashboardController</argument>
+      </argument>
     </service>
     <service id="EasyCorp\Bundle\EasyAdminBundle\Registry\CrudControllerRegistry" class="EasyCorp\Bundle\EasyAdminBundle\Registry\CrudControllerRegistry">
       <argument type="collection"/>
@@ -6754,6 +6563,27 @@
         <argument key="translation.loader.json" type="service_closure" id="translation.loader.json"/>
       </argument>
     </service>
+    <service id=".service_locator.taSV2iv" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="router" type="service_closure" id="router.default" on-invalid="ignore"/>
+        <argument key="request_stack" type="service_closure" id="request_stack" on-invalid="ignore"/>
+        <argument key="http_kernel" type="service_closure" id="http_kernel" on-invalid="ignore"/>
+        <argument key="security.authorization_checker" type="service_closure" id="security.authorization_checker" on-invalid="ignore"/>
+        <argument key="twig" type="service_closure" id="twig" on-invalid="ignore"/>
+        <argument key="form.factory" type="service_closure" id="form.factory" on-invalid="ignore"/>
+        <argument key="security.token_storage" type="service_closure" id="security.token_storage" on-invalid="ignore"/>
+        <argument key="security.csrf.token_manager" type="service_closure" id="security.csrf.same_origin_token_manager" on-invalid="ignore"/>
+        <argument key="parameter_bag" type="service_closure" id="parameter_bag" on-invalid="ignore"/>
+        <argument key="EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator" type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator" on-invalid="ignore"/>
+      </argument>
+    </service>
+    <service id=".service_locator.taSV2iv.App\Controller\Admin\DashboardController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\Admin\DashboardController"/>
+      <argument>App\Controller\Admin\DashboardController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.taSV2iv" method="withContext"/>
+    </service>
     <service id=".service_locator.TJNRSaV" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
@@ -6767,6 +6597,12 @@
         <argument key="security.csrf.token_manager" type="service_closure" id="security.csrf.same_origin_token_manager" on-invalid="ignore"/>
         <argument key="parameter_bag" type="service_closure" id="parameter_bag" on-invalid="ignore"/>
       </argument>
+    </service>
+    <service id=".service_locator.TJNRSaV.App\Controller\Admin\UsuarioCrudController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\Admin\UsuarioCrudController"/>
+      <argument>App\Controller\Admin\UsuarioCrudController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.TJNRSaV" method="withContext"/>
     </service>
     <service id=".service_locator.TJNRSaV.controller.helper" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="controller.helper"/>
@@ -6834,26 +6670,25 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.eB5.jjc" method="withContext"/>
     </service>
-    <service id=".service_locator.SETuHgl" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.BTNpB.z" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestPayloadValueResolver" type="service_closure" id=".debug.value_resolver.argument_resolver.request_payload"/>
-        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\QueryParameterValueResolver" type="service_closure" id=".debug.value_resolver.argument_resolver.query_parameter_value_resolver"/>
-        <argument key="Symfony\Component\Security\Http\Controller\UserValueResolver" type="service_closure" id=".debug.value_resolver.security.user_value_resolver"/>
-        <argument key="Symfony\Component\Security\Http\Controller\SecurityTokenValueResolver" type="service_closure" id=".debug.value_resolver.security.security_token_value_resolver"/>
-        <argument key="Symfony\Bridge\Doctrine\ArgumentResolver\EntityValueResolver" type="service_closure" id=".debug.value_resolver.doctrine.orm.entity_value_resolver"/>
-        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\BackedEnumValueResolver" type="service_closure" id=".debug.value_resolver.argument_resolver.backed_enum_resolver"/>
-        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\UidValueResolver" type="service_closure" id=".debug.value_resolver.argument_resolver.uid"/>
-        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DateTimeValueResolver" type="service_closure" id=".debug.value_resolver.argument_resolver.datetime"/>
-        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestAttributeValueResolver" type="service_closure" id=".debug.value_resolver.argument_resolver.request_attribute"/>
-        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestValueResolver" type="service_closure" id=".debug.value_resolver.argument_resolver.request"/>
-        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\SessionValueResolver" type="service_closure" id=".debug.value_resolver.argument_resolver.session"/>
-        <argument key="EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\AdminContextResolver" type="service_closure" id=".debug.value_resolver.EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\AdminContextResolver"/>
-        <argument key="EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\BatchActionDtoResolver" type="service_closure" id=".debug.value_resolver.EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\BatchActionDtoResolver"/>
-        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver" type="service_closure" id=".debug.value_resolver.argument_resolver.service"/>
-        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver" type="service_closure" id=".debug.value_resolver.argument_resolver.default"/>
-        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\VariadicValueResolver" type="service_closure" id=".debug.value_resolver.argument_resolver.variadic"/>
-        <argument key="argument_resolver.not_tagged_controller" type="service_closure" id=".debug.value_resolver.argument_resolver.not_tagged_controller"/>
+        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestPayloadValueResolver" type="service_closure" id="argument_resolver.request_payload"/>
+        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\QueryParameterValueResolver" type="service_closure" id="argument_resolver.query_parameter_value_resolver"/>
+        <argument key="Symfony\Component\Security\Http\Controller\UserValueResolver" type="service_closure" id="security.user_value_resolver"/>
+        <argument key="Symfony\Component\Security\Http\Controller\SecurityTokenValueResolver" type="service_closure" id="security.security_token_value_resolver"/>
+        <argument key="Symfony\Bridge\Doctrine\ArgumentResolver\EntityValueResolver" type="service_closure" id="doctrine.orm.entity_value_resolver"/>
+        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\BackedEnumValueResolver" type="service_closure" id="argument_resolver.backed_enum_resolver"/>
+        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\UidValueResolver" type="service_closure" id="argument_resolver.uid"/>
+        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DateTimeValueResolver" type="service_closure" id="argument_resolver.datetime"/>
+        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestAttributeValueResolver" type="service_closure" id="argument_resolver.request_attribute"/>
+        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestValueResolver" type="service_closure" id="argument_resolver.request"/>
+        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\SessionValueResolver" type="service_closure" id="argument_resolver.session"/>
+        <argument key="EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\AdminContextResolver" type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\AdminContextResolver"/>
+        <argument key="EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\BatchActionDtoResolver" type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\BatchActionDtoResolver"/>
+        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver" type="service_closure" id="argument_resolver.service"/>
+        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver" type="service_closure" id="argument_resolver.default"/>
+        <argument key="Symfony\Component\HttpKernel\Controller\ArgumentResolver\VariadicValueResolver" type="service_closure" id="argument_resolver.variadic"/>
       </argument>
     </service>
     <service id=".service_locator.icAHgqM" class="Symfony\Component\DependencyInjection\ServiceLocator">
@@ -6862,17 +6697,18 @@
         <argument key="reverse_container" type="service_closure" id="reverse_container" on-invalid="ignore_uninitialized"/>
       </argument>
     </service>
-    <service id=".service_locator.YDYHnos" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.6eloqTE" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="cache.app" type="service_closure" id="cache.app.taggable"/>
+        <argument key="cache.http_client.pool" type="service_closure" id="cache.http_client"/>
       </argument>
     </service>
     <service id=".service_locator.GW5y7PS" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="event_dispatcher" type="service_closure" id="debug.event_dispatcher"/>
-        <argument key="security.event_dispatcher.main" type="service_closure" id="debug.security.event_dispatcher.main"/>
+        <argument key="event_dispatcher" type="service_closure" id="event_dispatcher"/>
+        <argument key="security.event_dispatcher.main" type="service_closure" id="security.event_dispatcher.main"/>
       </argument>
     </service>
     <service id=".service_locator.pKCuUXf" class="Symfony\Component\DependencyInjection\ServiceLocator">
@@ -6919,43 +6755,11 @@
         <argument key="security.csrf.token_manager" type="service_closure" id="security.csrf.same_origin_token_manager" on-invalid="ignore"/>
       </argument>
     </service>
-    <service id="debug.event_dispatcher.inner" class="Symfony\Component\EventDispatcher\EventDispatcher"/>
-    <service id="debug.controller_resolver.inner" class="Symfony\Bundle\FrameworkBundle\Controller\ControllerResolver">
-      <argument type="service" id="service_container"/>
-      <argument type="service" id="logger" on-invalid="ignore"/>
-      <call method="allowControllers">
-        <argument type="collection">
-          <argument>Symfony\Bundle\FrameworkBundle\Controller\AbstractController</argument>
-          <argument>Symfony\Bundle\FrameworkBundle\Controller\TemplateController</argument>
-        </argument>
-      </call>
-      <call method="allowControllers">
-        <argument type="collection">
-          <argument>App\Kernel</argument>
-          <argument>Doctrine\Bundle\DoctrineBundle\Controller\ProfilerController</argument>
-        </argument>
-      </call>
-    </service>
-    <service id="debug.argument_resolver.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver">
-      <argument type="service" id="argument_metadata_factory"/>
-      <argument type="iterator">
-        <argument type="service" id=".debug.value_resolver.security.user_value_resolver"/>
-        <argument type="service" id=".debug.value_resolver.security.security_token_value_resolver"/>
-        <argument type="service" id=".debug.value_resolver.doctrine.orm.entity_value_resolver"/>
-        <argument type="service" id=".debug.value_resolver.argument_resolver.backed_enum_resolver"/>
-        <argument type="service" id=".debug.value_resolver.argument_resolver.uid"/>
-        <argument type="service" id=".debug.value_resolver.argument_resolver.datetime"/>
-        <argument type="service" id=".debug.value_resolver.argument_resolver.request_attribute"/>
-        <argument type="service" id=".debug.value_resolver.argument_resolver.request"/>
-        <argument type="service" id=".debug.value_resolver.argument_resolver.session"/>
-        <argument type="service" id=".debug.value_resolver.EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\AdminContextResolver"/>
-        <argument type="service" id=".debug.value_resolver.EasyCorp\Bundle\EasyAdminBundle\ArgumentResolver\BatchActionDtoResolver"/>
-        <argument type="service" id=".debug.value_resolver.argument_resolver.service"/>
-        <argument type="service" id=".debug.value_resolver.argument_resolver.default"/>
-        <argument type="service" id=".debug.value_resolver.argument_resolver.variadic"/>
-        <argument type="service" id=".debug.value_resolver.argument_resolver.not_tagged_controller"/>
+    <service id="http_client.uri_template.inner" class="Symfony\Contracts\HttpClient\HttpClientInterface">
+      <argument type="collection">
+        <argument type="service" id="http_client.transport"/>
       </argument>
-      <argument type="service" id=".service_locator.SETuHgl"/>
+      <factory function="current"/>
     </service>
     <service id="security.csrf.same_origin_token_manager.inner" class="Symfony\Component\Security\Csrf\CsrfTokenManager">
       <argument type="service" id="security.csrf.token_generator"/>
@@ -6986,7 +6790,6 @@
     <service id="debug.security.firewall.authenticator.main.inner" class="Symfony\Component\Security\Http\Firewall\AuthenticatorManagerListener">
       <argument type="service" id="security.authenticator.manager.main"/>
     </service>
-    <service id="debug.security.event_dispatcher.main.inner" class="Symfony\Component\EventDispatcher\EventDispatcher"/>
     <service id=".doctrine.orm.default_metadata_driver.inner" class="Doctrine\Persistence\Mapping\Driver\MappingDriverChain">
       <call method="addDriver">
         <argument type="service" id="doctrine.orm.default_attribute_metadata_driver"/>
@@ -6995,6 +6798,9 @@
     </service>
     <service id=".errored..service_locator.1vYpZ1B.Symfony\Component\Config\Loader\LoaderInterface" class="Symfony\Component\Config\Loader\LoaderInterface">
       <tag name="container.error" message="Cannot autowire service &quot;.service_locator.1vYpZ1B&quot;: it needs an instance of &quot;Symfony\Component\Config\Loader\LoaderInterface&quot; but this type has been excluded from autowiring."/>
+    </service>
+    <service id=".errored..service_locator.nbA6iHG.Symfony\Component\Security\Core\User\UserInterface" class="Symfony\Component\Security\Core\User\UserInterface">
+      <tag name="container.error" message="Cannot autowire service &quot;.service_locator.nbA6iHG&quot;: it references interface &quot;Symfony\Component\Security\Core\User\UserInterface&quot; but no such service exists. Did you create an instantiable class that implements this interface?"/>
     </service>
     <service id=".console.command.about.lazy" class="Symfony\Component\Console\Command\LazyCommand">
       <argument>about</argument>
@@ -7240,97 +7046,6 @@
       <argument>Dump error pages to plain HTML files that can be directly served by a web server</argument>
       <argument>false</argument>
       <argument type="service_closure" id="console.command.error_dumper"/>
-    </service>
-    <service id=".doctrine_migrations.diff_command.lazy" class="Symfony\Component\Console\Command\LazyCommand">
-      <argument>doctrine:migrations:diff</argument>
-      <argument type="collection"/>
-      <argument>Generate a migration by comparing your current database to your mapping information.</argument>
-      <argument>false</argument>
-      <argument type="service_closure" id="doctrine_migrations.diff_command"/>
-    </service>
-    <service id=".doctrine_migrations.sync_metadata_command.lazy" class="Symfony\Component\Console\Command\LazyCommand">
-      <argument>doctrine:migrations:sync-metadata-storage</argument>
-      <argument type="collection"/>
-      <argument>Ensures that the metadata storage is at the latest version.</argument>
-      <argument>false</argument>
-      <argument type="service_closure" id="doctrine_migrations.sync_metadata_command"/>
-    </service>
-    <service id=".doctrine_migrations.versions_command.lazy" class="Symfony\Component\Console\Command\LazyCommand">
-      <argument>doctrine:migrations:list</argument>
-      <argument type="collection"/>
-      <argument>Display a list of all available migrations and their status.</argument>
-      <argument>false</argument>
-      <argument type="service_closure" id="doctrine_migrations.versions_command"/>
-    </service>
-    <service id=".doctrine_migrations.current_command.lazy" class="Symfony\Component\Console\Command\LazyCommand">
-      <argument>doctrine:migrations:current</argument>
-      <argument type="collection"/>
-      <argument>Outputs the current version</argument>
-      <argument>false</argument>
-      <argument type="service_closure" id="doctrine_migrations.current_command"/>
-    </service>
-    <service id=".doctrine_migrations.dump_schema_command.lazy" class="Symfony\Component\Console\Command\LazyCommand">
-      <argument>doctrine:migrations:dump-schema</argument>
-      <argument type="collection"/>
-      <argument>Dump the schema for your database to a migration.</argument>
-      <argument>false</argument>
-      <argument type="service_closure" id="doctrine_migrations.dump_schema_command"/>
-    </service>
-    <service id=".doctrine_migrations.execute_command.lazy" class="Symfony\Component\Console\Command\LazyCommand">
-      <argument>doctrine:migrations:execute</argument>
-      <argument type="collection"/>
-      <argument>Execute one or more migration versions up or down manually.</argument>
-      <argument>false</argument>
-      <argument type="service_closure" id="doctrine_migrations.execute_command"/>
-    </service>
-    <service id=".doctrine_migrations.generate_command.lazy" class="Symfony\Component\Console\Command\LazyCommand">
-      <argument>doctrine:migrations:generate</argument>
-      <argument type="collection"/>
-      <argument>Generate a blank migration class.</argument>
-      <argument>false</argument>
-      <argument type="service_closure" id="doctrine_migrations.generate_command"/>
-    </service>
-    <service id=".doctrine_migrations.latest_command.lazy" class="Symfony\Component\Console\Command\LazyCommand">
-      <argument>doctrine:migrations:latest</argument>
-      <argument type="collection"/>
-      <argument>Outputs the latest version</argument>
-      <argument>false</argument>
-      <argument type="service_closure" id="doctrine_migrations.latest_command"/>
-    </service>
-    <service id=".doctrine_migrations.migrate_command.lazy" class="Symfony\Component\Console\Command\LazyCommand">
-      <argument>doctrine:migrations:migrate</argument>
-      <argument type="collection"/>
-      <argument>Execute a migration to a specified version or the latest available version.</argument>
-      <argument>false</argument>
-      <argument type="service_closure" id="doctrine_migrations.migrate_command"/>
-    </service>
-    <service id=".doctrine_migrations.rollup_command.lazy" class="Symfony\Component\Console\Command\LazyCommand">
-      <argument>doctrine:migrations:rollup</argument>
-      <argument type="collection"/>
-      <argument>Rollup migrations by deleting all tracked versions and insert the one version that exists.</argument>
-      <argument>false</argument>
-      <argument type="service_closure" id="doctrine_migrations.rollup_command"/>
-    </service>
-    <service id=".doctrine_migrations.status_command.lazy" class="Symfony\Component\Console\Command\LazyCommand">
-      <argument>doctrine:migrations:status</argument>
-      <argument type="collection"/>
-      <argument>View the status of a set of migrations.</argument>
-      <argument>false</argument>
-      <argument type="service_closure" id="doctrine_migrations.status_command"/>
-    </service>
-    <service id=".doctrine_migrations.up_to_date_command.lazy" class="Symfony\Component\Console\Command\LazyCommand">
-      <argument>doctrine:migrations:up-to-date</argument>
-      <argument type="collection"/>
-      <argument>Tells you if your schema is up-to-date.</argument>
-      <argument>false</argument>
-      <argument type="service_closure" id="doctrine_migrations.up_to_date_command"/>
-    </service>
-    <service id=".doctrine_migrations.version_command.lazy" class="Symfony\Component\Console\Command\LazyCommand">
-      <argument>doctrine:migrations:version</argument>
-      <argument type="collection"/>
-      <argument>Manually add and delete migration versions from the version table.</argument>
-      <argument>false</argument>
-      <argument type="service_closure" id="doctrine_migrations.version_command"/>
     </service>
     <service id=".twig.command.debug.lazy" class="Symfony\Component\Console\Command\LazyCommand">
       <argument>debug:twig</argument>
@@ -7584,7 +7299,7 @@
     </service>
     <service id="console.command_loader" class="Symfony\Component\Console\CommandLoader\ContainerCommandLoader" public="true">
       <tag name="container.no_preload"/>
-      <argument type="service" id=".service_locator.0Mj.Bcl"/>
+      <argument type="service" id=".service_locator.cUTBN.I"/>
       <argument type="collection">
         <argument key="about">console.command.about</argument>
         <argument key="assets:install">console.command.assets_install</argument>
@@ -7638,19 +7353,6 @@
         <argument key="doctrine:query:dql">doctrine.query_dql_command</argument>
         <argument key="doctrine:schema:update">doctrine.schema_update_command</argument>
         <argument key="doctrine:schema:validate">doctrine.schema_validate_command</argument>
-        <argument key="doctrine:migrations:diff">doctrine_migrations.diff_command</argument>
-        <argument key="doctrine:migrations:sync-metadata-storage">doctrine_migrations.sync_metadata_command</argument>
-        <argument key="doctrine:migrations:list">doctrine_migrations.versions_command</argument>
-        <argument key="doctrine:migrations:current">doctrine_migrations.current_command</argument>
-        <argument key="doctrine:migrations:dump-schema">doctrine_migrations.dump_schema_command</argument>
-        <argument key="doctrine:migrations:execute">doctrine_migrations.execute_command</argument>
-        <argument key="doctrine:migrations:generate">doctrine_migrations.generate_command</argument>
-        <argument key="doctrine:migrations:latest">doctrine_migrations.latest_command</argument>
-        <argument key="doctrine:migrations:migrate">doctrine_migrations.migrate_command</argument>
-        <argument key="doctrine:migrations:rollup">doctrine_migrations.rollup_command</argument>
-        <argument key="doctrine:migrations:status">doctrine_migrations.status_command</argument>
-        <argument key="doctrine:migrations:up-to-date">doctrine_migrations.up_to_date_command</argument>
-        <argument key="doctrine:migrations:version">doctrine_migrations.version_command</argument>
         <argument key="debug:twig">twig.command.debug</argument>
         <argument key="lint:twig">twig.command.lint</argument>
         <argument key="debug:twig-component">ux.twig_component.command.debug</argument>
@@ -7691,7 +7393,7 @@
         <argument key="make:webhook">maker.auto_command.make_webhook</argument>
       </argument>
     </service>
-    <service id=".service_locator.0Mj.Bcl" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.cUTBN.I" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="console.command.about" type="service_closure" id=".console.command.about.lazy"/>
@@ -7746,19 +7448,6 @@
         <argument key="doctrine.query_dql_command" type="service_closure" id="doctrine.query_dql_command"/>
         <argument key="doctrine.schema_update_command" type="service_closure" id="doctrine.schema_update_command"/>
         <argument key="doctrine.schema_validate_command" type="service_closure" id="doctrine.schema_validate_command"/>
-        <argument key="doctrine_migrations.diff_command" type="service_closure" id=".doctrine_migrations.diff_command.lazy"/>
-        <argument key="doctrine_migrations.sync_metadata_command" type="service_closure" id=".doctrine_migrations.sync_metadata_command.lazy"/>
-        <argument key="doctrine_migrations.versions_command" type="service_closure" id=".doctrine_migrations.versions_command.lazy"/>
-        <argument key="doctrine_migrations.current_command" type="service_closure" id=".doctrine_migrations.current_command.lazy"/>
-        <argument key="doctrine_migrations.dump_schema_command" type="service_closure" id=".doctrine_migrations.dump_schema_command.lazy"/>
-        <argument key="doctrine_migrations.execute_command" type="service_closure" id=".doctrine_migrations.execute_command.lazy"/>
-        <argument key="doctrine_migrations.generate_command" type="service_closure" id=".doctrine_migrations.generate_command.lazy"/>
-        <argument key="doctrine_migrations.latest_command" type="service_closure" id=".doctrine_migrations.latest_command.lazy"/>
-        <argument key="doctrine_migrations.migrate_command" type="service_closure" id=".doctrine_migrations.migrate_command.lazy"/>
-        <argument key="doctrine_migrations.rollup_command" type="service_closure" id=".doctrine_migrations.rollup_command.lazy"/>
-        <argument key="doctrine_migrations.status_command" type="service_closure" id=".doctrine_migrations.status_command.lazy"/>
-        <argument key="doctrine_migrations.up_to_date_command" type="service_closure" id=".doctrine_migrations.up_to_date_command.lazy"/>
-        <argument key="doctrine_migrations.version_command" type="service_closure" id=".doctrine_migrations.version_command.lazy"/>
         <argument key="twig.command.debug" type="service_closure" id=".twig.command.debug.lazy"/>
         <argument key="twig.command.lint" type="service_closure" id=".twig.command.lint.lazy"/>
         <argument key="ux.twig_component.command.debug" type="service_closure" id=".ux.twig_component.command.debug.lazy"/>
@@ -7809,9 +7498,9 @@
     <service id="Symfony\Bundle\FrameworkBundle\Controller\ControllerHelper" alias="controller.helper"/>
     <service id="Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface" alias="parameter_bag"/>
     <service id="Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface" alias="parameter_bag"/>
-    <service id="Symfony\Component\EventDispatcher\EventDispatcherInterface" alias="debug.event_dispatcher"/>
-    <service id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface" alias="debug.event_dispatcher"/>
-    <service id="Psr\EventDispatcher\EventDispatcherInterface" alias="debug.event_dispatcher"/>
+    <service id="Symfony\Component\EventDispatcher\EventDispatcherInterface" alias="event_dispatcher"/>
+    <service id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface" alias="event_dispatcher"/>
+    <service id="Psr\EventDispatcher\EventDispatcherInterface" alias="event_dispatcher"/>
     <service id="Symfony\Component\HttpKernel\HttpKernelInterface" alias="http_kernel"/>
     <service id="Symfony\Component\HttpFoundation\RequestStack" alias="request_stack"/>
     <service id="Symfony\Component\HttpKernel\HttpCache\StoreInterface" alias="http_cache.store"/>
@@ -7841,6 +7530,7 @@
     <service id="Symfony\Contracts\Cache\TagAwareCacheInterface" alias="cache.app.taggable"/>
     <service id="Symfony\Contracts\Translation\TranslatorInterface" alias="translator.default"/>
     <service id="Symfony\Component\Asset\Packages" alias="assets.packages"/>
+    <service id="Symfony\Contracts\HttpClient\HttpClientInterface" alias="http_client.uri_template"/>
     <service id="Symfony\Component\Translation\Reader\TranslationReaderInterface" alias="translation.reader"/>
     <service id="Symfony\Component\Translation\Extractor\ExtractorInterface" alias="translation.extractor"/>
     <service id="Symfony\Component\Translation\Writer\TranslationWriterInterface" alias="translation.writer"/>
@@ -7849,7 +7539,6 @@
     <service id="translator" alias="translator.default" public="true"/>
     <service id="translator.formatter" alias="translator.formatter.default"/>
     <service id="Symfony\Component\ErrorHandler\ErrorRenderer\FileLinkFormatter" alias="debug.file_link_formatter"/>
-    <service id="Symfony\Component\Stopwatch\Stopwatch" alias="debug.stopwatch"/>
     <service id="router" alias="router.default" public="true"/>
     <service id="Symfony\Component\Routing\RouterInterface" alias="router.default"/>
     <service id="Symfony\Component\Routing\Generator\UrlGeneratorInterface" alias="router.default"/>
@@ -7905,7 +7594,6 @@
     <service id=".Doctrine\ORM\EntityManagerInterface $default.entity_manager" alias="doctrine.orm.default_entity_manager"/>
     <service id="Doctrine\ORM\EntityManagerInterface $defaultEntityManager" alias="doctrine.orm.default_entity_manager"/>
     <service id="doctrine.orm.default_entity_manager.event_manager" alias="doctrine.dbal.default_connection.event_manager"/>
-    <service id="doctrine.migrations.metadata_storage" alias="doctrine.migrations.storage.table_storage"/>
     <service id="Twig\Environment" alias="twig"/>
     <service id="Symfony\UX\TwigComponent\ComponentRendererInterface" alias="ux.twig_component.component_renderer"/>
     <service id="console.command.stimulus_component_debug" alias="ux.twig_component.command.debug">
@@ -7937,23 +7625,22 @@
     <service id="EasyCorp\Bundle\EasyAdminBundle\Contracts\Orm\EntityPaginatorInterface" alias="EasyCorp\Bundle\EasyAdminBundle\Orm\EntityPaginator"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.ryAvHi4" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.8JS6QTA"/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.jX8UL.u"/>
     <service id="doctrine.id_generator_locator" alias=".service_locator.W55Po6X"/>
     <service id="twig.loader" alias="twig.loader.native_filesystem"/>
     <service id="Psr\Log\LoggerInterface" alias="logger"/>
     <service id=".service_locator.iv7ICwG" alias="service_locator_EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator"/>
     <service id=".service_locator.S9tnIXR" alias=".service_locator.DA6YX9k"/>
-    <service id="event_dispatcher" alias="debug.event_dispatcher" public="true"/>
-    <service id="controller_resolver" alias="debug.controller_resolver"/>
-    <service id="argument_resolver" alias="debug.argument_resolver"/>
+    <service id="http_client" alias="http_client.uri_template"/>
     <service id="security.csrf.token_manager" alias="security.csrf.same_origin_token_manager"/>
     <service id="twig.error_renderer.html.inner" alias="error_handler.error_renderer.html"/>
     <service id="twig.configurator.environment" alias="ux.twig_component.twig.environment_configurator"/>
     <service id="security.access.decision_manager" alias="debug.security.access.decision_manager"/>
     <service id="security.firewall.authenticator.main" alias="debug.security.firewall.authenticator.main"/>
-    <service id="security.event_dispatcher.main" alias="debug.security.event_dispatcher.main"/>
     <service id="doctrine.orm.default_metadata_driver" alias=".doctrine.orm.default_metadata_driver"/>
     <service id=".service_locator.c0wzfI4" alias=".service_locator.1vYpZ1B"/>
+    <service id=".service_locator.WmCo8Pk" alias=".service_locator.nbA6iHG"/>
+    <service id=".service_locator.3QSdpda" alias=".service_locator.taSV2iv"/>
     <service id=".service_locator.FKG6F_t" alias=".service_locator.TJNRSaV"/>
   </services>
 </container>
