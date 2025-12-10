@@ -5,14 +5,13 @@ namespace App\Controller\Admin;
 use App\DTO\Usuario;
 use App\Service\UsuarioService;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/admin/usuario')]
-class UsuarioCrudController extends AbstractController
+class UsuarioCrudController extends BaseAdminController
 {
     public function __construct(
         private UsuarioService $usuarioService,
@@ -25,7 +24,7 @@ class UsuarioCrudController extends AbstractController
     {
         $usuarios = $this->usuarioService->findAll();
         
-        return $this->render('admin/usuario/index.html.twig', [
+        return $this->renderWithMenu('admin/usuario/index.html.twig', [
             'usuarios' => $usuarios,
         ]);
     }
@@ -39,7 +38,7 @@ class UsuarioCrudController extends AbstractController
             throw $this->createNotFoundException('Usuario no encontrado');
         }
 
-        return $this->render('admin/usuario/detail.html.twig', [
+        return $this->renderWithMenu('admin/usuario/detail.html.twig', [
             'usuario' => $usuario,
         ]);
     }
@@ -64,7 +63,7 @@ class UsuarioCrudController extends AbstractController
             }
         }
 
-        return $this->render('admin/usuario/new.html.twig', [
+        return $this->renderWithMenu('admin/usuario/new.html.twig', [
             'usuario' => $usuario,
         ]);
     }
@@ -93,7 +92,7 @@ class UsuarioCrudController extends AbstractController
             }
         }
 
-        return $this->render('admin/usuario/edit.html.twig', [
+        return $this->renderWithMenu('admin/usuario/edit.html.twig', [
             'usuario' => $usuario,
         ]);
     }
