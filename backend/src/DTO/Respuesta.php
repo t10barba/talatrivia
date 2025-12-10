@@ -2,13 +2,13 @@
 
 namespace App\DTO;
 
-class Pregunta
+class Respuesta
 {
     private ?int $id = null;
+    private ?int $preguntaId = null;
     private ?string $texto = null;
-    private ?int $dificultad = null;
+    private ?bool $esCorrecta = null;
     private ?\DateTimeImmutable $createdAt = null;
-    private array $respuestas = [];
  
     public function getId(): ?int
     {
@@ -18,6 +18,17 @@ class Pregunta
     public function setId(?int $id): self
     {
         $this->id = $id;
+        return $this;
+    }
+
+    public function getPreguntaId(): ?int
+    {
+        return $this->preguntaId;
+    }
+
+    public function setPreguntaId(?int $preguntaId): self
+    {
+        $this->preguntaId = $preguntaId;
         return $this;
     }
 
@@ -32,14 +43,14 @@ class Pregunta
         return $this;
     }
 
-    public function getDificultad(): ?int
+    public function getEsCorrecta(): ?bool
     {
-        return $this->dificultad;
+        return $this->esCorrecta;
     }
 
-    public function setDificultad(?int $dificultad): self
+    public function setEsCorrecta(?bool $esCorrecta): self
     {
-        $this->dificultad = $dificultad;
+        $this->esCorrecta = $esCorrecta;
         return $this;
     }
 
@@ -54,36 +65,27 @@ class Pregunta
         return $this;
     }
 
-    public function getRespuestas(): array
-    {
-        return $this->respuestas;
-    }
-
-    public function setRespuestas(array $respuestas): self
-    {
-        $this->respuestas = $respuestas;
-        return $this;
-    }
-
     public static function fromArray(array $data): self
     {
-        $pregunta = new self();
-        $pregunta->setId($data['id'] ?? null);
-        $pregunta->setTexto($data['texto'] ?? null);
-        $pregunta->setDificultad($data['dificultad'] ?? null);
+        $respuesta = new self();
+        $respuesta->setId($data['id'] ?? null);
+        $respuesta->setPreguntaId($data['preguntaId'] ?? null);
+        $respuesta->setTexto($data['texto'] ?? null);
+        $respuesta->setEsCorrecta($data['esCorrecta'] ?? null);
         
         if (isset($data['createdAt'])) {
-            $pregunta->setCreatedAt(new \DateTimeImmutable($data['createdAt']));
+            $respuesta->setCreatedAt(new \DateTimeImmutable($data['createdAt']));
         }
         
-        return $pregunta;
+        return $respuesta;
     }
 
     public function toArray(): array
     {
         return [
+            'preguntaId' => $this->preguntaId,
             'texto' => $this->texto,
-            'dificultad' => $this->dificultad,
+            'esCorrecta' => $this->esCorrecta,
         ];
     }
 }

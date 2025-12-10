@@ -48,6 +48,21 @@
                     </div>
                 </div>
 
+                <hr class="my-4">
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label mb-0">Respuestas</label>
+                        <button type="button" class="btn btn-sm btn-success" id="agregar-respuesta">
+                            <i class="fa fa-plus"></i> Agregar Respuesta
+                        </button>
+                    </div>
+                    <div id="respuestas-container">
+                        <!-- Las respuestas se agregarán dinámicamente aquí -->
+                    </div>
+                    <small class="text-muted">Selecciona la respuesta correcta usando el botón de radio</small>
+                </div>
+
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">
                         <i class="fa fa-save"></i> Guardar
@@ -59,4 +74,28 @@
             </form>
         </div>
     </div>
+
+<script>
+let respuestaIndex = 0;
+
+document.getElementById('agregar-respuesta').addEventListener('click', function() {
+    const container = document.getElementById('respuestas-container');
+    const respuestaDiv = document.createElement('div');
+    respuestaDiv.className = 'input-group mb-2';
+    respuestaDiv.innerHTML = `
+        <div class="input-group-text">
+            <input class="form-check-input mt-0" type="radio" name="respuesta_correcta" value="${respuestaIndex}" required>
+        </div>
+        <input type="text" class="form-control" name="respuestas[]" placeholder="Texto de la respuesta" required>
+        <button class="btn btn-outline-danger" type="button" onclick="this.parentElement.remove()">
+            <i class="fa fa-trash"></i>
+        </button>
+    `;
+    container.appendChild(respuestaDiv);
+    respuestaIndex++;
+});
+
+// Agregar al menos una respuesta por defecto
+document.getElementById('agregar-respuesta').click();
+</script>
 {% endblock %}
