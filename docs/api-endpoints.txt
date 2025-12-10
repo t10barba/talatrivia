@@ -1,4 +1,46 @@
 Api endpoints
 --
 
-/usuarios
+DOCUMENTACIÓN
+GET     /api/doc                                            - Swagger UI
+GET     /api/doc.json                                       - Swagger JSON
+
+PREGUNTAS
+GET     /api/v1/preguntas                                   - Listar preguntas
+GET     /api/v1/preguntas/{id}                              - Ver pregunta
+POST    /api/v1/preguntas                                   - Crear pregunta
+PUT     /api/v1/preguntas/{id}                              - Actualizar pregunta
+PATCH   /api/v1/preguntas/{id}                              - Actualizar pregunta parcial
+DELETE  /api/v1/preguntas/{id}                              - Eliminar pregunta
+
+RESPUESTAS
+GET     /api/v1/respuestas                                  - Listar respuestas
+GET     /api/v1/respuestas/{id}                             - Ver respuesta
+POST    /api/v1/respuestas                                  - Crear respuesta
+PUT     /api/v1/respuestas/{id}                             - Actualizar respuesta
+PATCH   /api/v1/respuestas/{id}                             - Actualizar respuesta parcial
+DELETE  /api/v1/respuestas/{id}                             - Eliminar respuesta
+
+TRIVIAS
+GET     /api/v1/trivias                                     - Listar trivias
+GET     /api/v1/trivias/{id}                                - Ver trivia
+POST    /api/v1/trivias                                     - Crear trivia
+PUT     /api/v1/trivias/{id}                                - Actualizar trivia
+PATCH   /api/v1/trivias/{id}                                - Actualizar trivia parcial
+DELETE  /api/v1/trivias/{id}                                - Eliminar trivia
+
+PREGUNTAS DE TRIVIA
+GET     /api/v1/trivias/{triviaId}/preguntas                - Listar preguntas de una trivia
+POST    /api/v1/trivias/{triviaId}/preguntas                - Agregar pregunta a trivia
+POST    /api/v1/trivias/{triviaId}/preguntas/bulk           - Asignar múltiples preguntas
+PUT     /api/v1/trivias/{triviaId}/preguntas/{preguntaId}   - Actualizar pregunta en trivia
+PATCH   /api/v1/trivias/{triviaId}/preguntas/{preguntaId}   - Actualizar pregunta parcial en trivia
+DELETE  /api/v1/trivias/{triviaId}/preguntas/{preguntaId}   - Eliminar pregunta de trivia
+
+USUARIOS
+GET     /api/v1/usuarios                                    - Listar usuarios
+GET     /api/v1/usuarios/{id}                               - Ver usuario
+POST    /api/v1/usuarios                                    - Crear usuario
+PUT     /api/v1/usuarios/{id}                               - Actualizar usuario
+PATCH   /api/v1/usuarios/{id}                               - Actualizar usuario parcial
+DELETE  /api/v1/usuarios/{id}                               - Eliminar usuario
