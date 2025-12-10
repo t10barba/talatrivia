@@ -31,6 +31,7 @@
                         <th>ID</th>
                         <th>Texto</th>
                         <th>Dificultad</th>
+                        <th>Respuestas</th>
                         <th>Fecha de Creación</th>
                         <th>Acciones</th>
                     </tr>
@@ -47,6 +48,9 @@
                                     {% else %}Difícil
                                     {% endif %}
                                 </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ pregunta.respuestas|length }}</span>
                             </td>
                             <td>{{ pregunta.createdAt ? pregunta.createdAt|date('d/m/Y H:i') : '-' }}</td>
                             <td>
@@ -65,7 +69,7 @@
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="5" class="text-center">No hay preguntas registradas</td>
+                            <td colspan="6" class="text-center">No hay preguntas registradas</td>
                         </tr>
                     {% endfor %}
                 </tbody>
