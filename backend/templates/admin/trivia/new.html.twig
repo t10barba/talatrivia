@@ -1,0 +1,43 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block page_title %}Crear Trivia{% endblock %}
+
+{% block content %}
+    <div class="mb-3">
+        <a href="{{ path('admin_trivia_index') }}" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    {% for message in app.flashes('danger') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="nombre" name="nombre" value="{{ trivia.nombre ?? '' }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label">Descripción <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="descripcion" name="descripcion" rows="5" required>{{ trivia.descripcion ?? '' }}</textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-save"></i> Guardar
+                    </button>
+                    <a href="{{ path('admin_trivia_index') }}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

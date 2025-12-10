@@ -1,0 +1,68 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block page_title %}Trivias{% endblock %}
+
+{% block content %}
+    <div class="mb-3">
+        <a href="{{ path('admin_trivia_new') }}" class="btn btn-primary">
+            <i class="fa fa-plus"></i> Crear Trivia
+        </a>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+    
+    {% for message in app.flashes('danger') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Fecha de Creación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trivia in trivias %}
+                        <tr>
+                            <td>{{ trivia.id }}</td>
+                            <td>{{ trivia.nombre }}</td>
+                            <td>{{ trivia.descripcion|length > 50 ? trivia.descripcion|slice(0, 50) ~ '...' : trivia.descripcion }}</td>
+                            <td>{{ trivia.createdAt ? trivia.createdAt|date('d/m/Y H:i') : '-' }}</td>
+                            <td>
+                                <a href="{{ path('admin_trivia_detail', {id: trivia.id}) }}" class="btn btn-sm btn-info">
+                                    <i class="fa fa-eye"></i> Ver
+                                </a>
+                                <a href="{{ path('admin_trivia_edit', {id: trivia.id}) }}" class="btn btn-sm btn-warning">
+                                    <i class="fa fa-edit"></i> Editar
+                                </a>
+                                <a href="{{ path('admin_trivia_delete', {id: trivia.id}) }}" 
+                                   class="btn btn-sm btn-danger" 
+                                   onclick="return confirm('¿Está seguro de eliminar esta trivia?')">
+                                    <i class="fa fa-trash"></i> Eliminar
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center">No hay trivias registradas</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
