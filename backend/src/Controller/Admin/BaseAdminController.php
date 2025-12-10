@@ -12,6 +12,7 @@ abstract class BaseAdminController extends AbstractController
             ['label' => 'Dashboard', 'icon' => 'fa-home', 'route' => 'admin'],
             ['label' => 'Usuarios', 'icon' => 'fa-users', 'route' => 'admin_usuario_index'],
             ['label' => 'Trivias', 'icon' => 'fa-question-circle', 'route' => 'admin_trivia_index'],
+            ['label' => 'Preguntas', 'icon' => 'fa-question', 'route' => 'admin_pregunta_index'],
         ];
     }
 

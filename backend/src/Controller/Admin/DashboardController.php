@@ -18,6 +18,7 @@ class DashboardController extends AbstractDashboardController
             ['label' => 'Dashboard', 'icon' => 'fa-home', 'route' => 'admin'],
             ['label' => 'Usuarios', 'icon' => 'fa-users', 'route' => 'admin_usuario_index'],
             ['label' => 'Trivias', 'icon' => 'fa-question-circle', 'route' => 'admin_trivia_index'],
+            ['label' => 'Preguntas', 'icon' => 'fa-question', 'route' => 'admin_pregunta_index'],
         ];
         
         return $this->render('admin/dashboard.html.twig', [
@@ -37,5 +38,6 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
         yield MenuItem::linkToRoute('Usuarios', 'fa fa-users', 'admin_usuario_index');
         yield MenuItem::linkToRoute('Trivias', 'fa fa-question-circle', 'admin_trivia_index');
+        yield MenuItem::linkToRoute('Preguntas', 'fa fa-question', 'admin_pregunta_index');
     }
 }
