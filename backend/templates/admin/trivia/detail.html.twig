@@ -29,4 +29,46 @@
             </dl>
         </div>
     </div>
+
+    <div class="card mt-3">
+        <div class="card-header">
+            <h5 class="mb-0">Preguntas ({{ preguntas|length }})</h5>
+        </div>
+        <div class="card-body">
+            {% if preguntas is empty %}
+                <p class="text-muted">No hay preguntas asignadas a esta trivia.</p>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">Orden</th>
+                                <th style="width: 80px;">ID</th>
+                                <th>Pregunta</th>
+                                <th style="width: 120px;">Dificultad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pregunta in preguntas %}
+                                <tr>
+                                    <td><strong>{{ pregunta.orden }}</strong></td>
+                                    <td>{{ pregunta.id }}</td>
+                                    <td>{{ pregunta.texto }}</td>
+                                    <td>
+                                        {% if pregunta.dificultad == 1 %}
+                                            <span class="badge bg-success">Fácil</span>
+                                        {% elseif pregunta.dificultad == 2 %}
+                                            <span class="badge bg-warning">Medio</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Difícil</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}

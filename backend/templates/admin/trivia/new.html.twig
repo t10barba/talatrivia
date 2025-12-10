@@ -2,6 +2,43 @@
 
 {% block page_title %}Crear Trivia{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .preguntas-seleccionadas-list {
+            list-style: none;
+            padding: 0;
+            min-height: 50px;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            background: #f8f9fa;
+        }
+        .pregunta-item {
+            padding: 10px 15px;
+            margin: 5px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .pregunta-item:hover {
+            background: #f8f9fa;
+        }
+        .pregunta-texto {
+            flex: 1;
+        }
+        .badge {
+            margin-left: 10px;
+        }
+        .btn-remove {
+            margin-left: 10px;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     <div class="mb-3">
         <a href="{{ path('admin_trivia_index') }}" class="btn btn-secondary">
@@ -18,7 +55,7 @@
 
     <div class="card">
         <div class="card-body">
-            <form method="post">
+            <form method="post" id="triviaForm">
                 <div class="mb-3">
                     <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" id="nombre" name="nombre" value="{{ trivia.nombre ?? '' }}" required>
@@ -27,6 +64,42 @@
                 <div class="mb-3">
                     <label for="descripcion" class="form-label">Descripción <span class="text-danger">*</span></label>
                     <textarea class="form-control" id="descripcion" name="descripcion" rows="5" required>{{ trivia.descripcion ?? '' }}</textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Preguntas Seleccionadas</label>
+                            <ul class="preguntas-seleccionadas-list" id="preguntasSeleccionadas">
+                                <li class="text-muted text-center py-3" id="emptyMessage">No hay preguntas seleccionadas</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="preguntaSelect" class="form-label">Agregar Pregunta</label>
+                            <select class="form-select mb-2" id="preguntaSelect">
+                                <option value="">Seleccionar pregunta...</option>
+                                {% for pregunta in todasLasPreguntas %}
+                                    <option value="{{ pregunta.id }}" 
+                                            data-texto="{{ pregunta.texto }}" 
+                                            data-dificultad="{{ pregunta.dificultad }}">
+                                        {{ pregunta.id }}) {{ pregunta.texto }} 
+                                        {% if pregunta.dificultad == 1 %}
+                                            [Fácil]
+                                        {% elseif pregunta.dificultad == 2 %}
+                                            [Medio]
+                                        {% else %}
+                                            [Difícil]
+                                        {% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="btn btn-success w-100" id="agregarPreguntaBtn">
+                                <i class="fa fa-plus"></i> Agregar Pregunta
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-actions">
@@ -40,4 +113,104 @@
             </form>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script>
+        const preguntasSeleccionadas = new Set();
+        const listElement = document.getElementById('preguntasSeleccionadas');
+        const emptyMessage = document.getElementById('emptyMessage');
+        const preguntaSelect = document.getElementById('preguntaSelect');
+        const agregarBtn = document.getElementById('agregarPreguntaBtn');
+
+        // Inicializar SortableJS
+        new Sortable(listElement, {
+            animation: 150,
+            handle: '.pregunta-item',
+            ghostClass: 'bg-light'
+        });
+
+        function getDificultadBadge(dificultad) {
+            if (dificultad == 1) return '<span class="badge bg-success">Fácil</span>';
+            if (dificultad == 2) return '<span class="badge bg-warning">Medio</span>';
+            return '<span class="badge bg-danger">Difícil</span>';
+        }
+
+        function agregarPregunta() {
+            const selectedOption = preguntaSelect.options[preguntaSelect.selectedIndex];
+            if (!selectedOption.value) return;
+
+            const preguntaId = selectedOption.value;
+            if (preguntasSeleccionadas.has(preguntaId)) {
+                alert('Esta pregunta ya está seleccionada');
+                return;
+            }
+
+            const texto = selectedOption.dataset.texto;
+            const dificultad = selectedOption.dataset.dificultad;
+
+            // Ocultar mensaje vacío
+            if (emptyMessage) {
+                emptyMessage.style.display = 'none';
+            }
+
+            // Crear elemento de lista
+            const li = document.createElement('li');
+            li.className = 'pregunta-item';
+            li.dataset.id = preguntaId;
+            li.innerHTML = `
+                <span class="pregunta-texto">${preguntaId}) ${texto}</span>
+                ${getDificultadBadge(dificultad)}
+                <button type="button" class="btn btn-sm btn-danger btn-remove" onclick="eliminarPregunta(this)">
+                    <i class="fa fa-trash"></i>
+                </button>
+            `;
+
+            listElement.appendChild(li);
+            preguntasSeleccionadas.add(preguntaId);
+
+            // Ocultar opción del select
+            selectedOption.style.display = 'none';
+            preguntaSelect.value = '';
+        }
+
+        function eliminarPregunta(btn) {
+            const li = btn.closest('.pregunta-item');
+            const preguntaId = li.dataset.id;
+
+            li.remove();
+            preguntasSeleccionadas.delete(preguntaId);
+
+            // Mostrar opción en el select
+            const option = preguntaSelect.querySelector(`option[value="${preguntaId}"]`);
+            if (option) {
+                option.style.display = '';
+            }
+
+            // Mostrar mensaje vacío si no hay preguntas
+            if (preguntasSeleccionadas.size === 0 && emptyMessage) {
+                emptyMessage.style.display = '';
+            }
+        }
+
+        agregarBtn.addEventListener('click', agregarPregunta);
+
+        // Al enviar el formulario, agregar inputs hidden con las preguntas en orden
+        document.getElementById('triviaForm').addEventListener('submit', function(e) {
+            // Eliminar inputs previos
+            document.querySelectorAll('input[name="preguntas[]"]').forEach(input => input.remove());
+
+            // Agregar inputs en orden
+            const items = listElement.querySelectorAll('.pregunta-item');
+            items.forEach(item => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'preguntas[]';
+                input.value = item.dataset.id;
+                this.appendChild(input);
+            });
+        });
+    </script>
 {% endblock %}

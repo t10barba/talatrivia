@@ -75,7 +75,13 @@ class ApiClient
             $errorData = $response->toArray(false);
             $errorMessage = $errorData['error'] ?? $errorData['message'] ?? 'Error desconocido';
         } catch (\Exception $decodeException) {
-            $errorMessage = 'Error desconocido';
+            // Si no se puede decodificar, intentar obtener el contenido raw
+            try {
+                $content = $response->getContent(false);
+                $errorMessage = 'Error HTTP ' . $statusCode . ': ' . substr($content, 0, 200);
+            } catch (\Exception $contentException) {
+                $errorMessage = 'Error HTTP ' . $statusCode . ' (no se pudo obtener detalle)';
+            }
         }
 
         throw new \RuntimeException($errorMessage, $statusCode);
