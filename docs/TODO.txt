@@ -7,7 +7,7 @@ TODO TalaTrivia
 * generar fixtures estáticos
 * primer endpoint api /v1/usuarios
 * documentación de api usando NelmioApiDocBundle
-
+* primer CRUD backend usuario
 * integrar Auth0
 * aplicar seguridad
 * crear repositorio github

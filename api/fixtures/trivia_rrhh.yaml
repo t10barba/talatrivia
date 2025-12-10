@@ -13,56 +13,196 @@ App\Entity\Pregunta:
         texto: '¿Cuál es el objetivo principal de una evaluación de desempeño?'
     
     pregunta_rrhh_3:
-        dificultad: 2
+        dificultad: 3
         texto: '¿Qué significa la sigla KPI en el contexto de recursos humanos?'
+    
+    pregunta_rrhh_4:
+        dificultad: 1
+        texto: '¿Qué instrumento se utiliza para medir de forma estructurada el grado de satisfacción y percepciones sobre el ambiente laboral entre los empleados?'
+    
+    pregunta_rrhh_5:
+        dificultad: 2
+        texto: '¿Qué proceso se centra en identificar y preparar candidatos internos para reemplazar a titulares de puestos clave en el futuro?'
+    
+    pregunta_rrhh_6:
+        dificultad: 3
+        texto: '¿Qué método de evaluación fija objetivos individuales medibles y valora el rendimiento según el grado de cumplimiento de esos objetivos?'
+    
+    pregunta_rrhh_7:
+        dificultad: 2
+        texto: '¿Qué técnica de selección pide a los candidatos resolver un problema o realizar una tarea real relacionada con el puesto durante el proceso de selección?'
+    
+    pregunta_rrhh_8:
+        dificultad: 3
+        texto: '¿Qué sesgo en evaluaciones de desempeño ocurre cuando una característica notable (positiva o negativa) del evaluado influye en la valoración global?'
+    
+    pregunta_rrhh_9:
+        dificultad: 1
+        texto: '¿Cuál es la función principal de un análisis de puestos?'
+    
+    pregunta_rrhh_10:
+        dificultad: 1
+        texto: '¿Qué práctica ayuda a proteger los datos personales de los empleados y a cumplir con regulaciones de privacidad?'
 
 App\Entity\Respuesta:
     # Respuestas para pregunta 1
-    respuesta_1_correcta:
-        pregunta: '@pregunta_rrhh_1'
-        texto: 'Es el proceso de integración de un nuevo empleado a la empresa'
-        esCorrecta: true
-    
-    respuesta_1_incorrecta_1:
-        pregunta: '@pregunta_rrhh_1'
-        texto: 'Es el proceso de desvinculación laboral'
-        esCorrecta: false
-    
-    respuesta_1_incorrecta_2:
+    respuesta_1_1:
         pregunta: '@pregunta_rrhh_1'
         texto: 'Es una técnica de capacitación externa'
         esCorrecta: false
     
+    respuesta_1_2:
+        pregunta: '@pregunta_rrhh_1'
+        texto: 'Es el proceso de desvinculación laboral'
+        esCorrecta: false
+    
+    respuesta_1_3:
+        pregunta: '@pregunta_rrhh_1'
+        texto: 'Es el proceso de integración de un nuevo empleado a la empresa'
+        esCorrecta: true
+    
     # Respuestas para pregunta 2
-    respuesta_2_correcta:
+    respuesta_2_1:
         pregunta: '@pregunta_rrhh_2'
         texto: 'Medir el rendimiento del empleado y establecer planes de mejora'
         esCorrecta: true
     
-    respuesta_2_incorrecta_1:
+    respuesta_2_2:
         pregunta: '@pregunta_rrhh_2'
         texto: 'Determinar el salario inicial del empleado'
         esCorrecta: false
     
-    respuesta_2_incorrecta_2:
+    respuesta_2_3:
         pregunta: '@pregunta_rrhh_2'
         texto: 'Controlar la asistencia del personal'
         esCorrecta: false
     
     # Respuestas para pregunta 3
-    respuesta_3_correcta:
-        pregunta: '@pregunta_rrhh_3'
-        texto: 'Key Performance Indicator (Indicador Clave de Desempeño)'
-        esCorrecta: true
-    
-    respuesta_3_incorrecta_1:
+    respuesta_3_1:
         pregunta: '@pregunta_rrhh_3'
         texto: 'Keep People Informed (Mantener a las Personas Informadas)'
         esCorrecta: false
     
-    respuesta_3_incorrecta_2:
+    respuesta_3_2:
+        pregunta: '@pregunta_rrhh_3'
+        texto: 'Key Performance Indicator (Indicador Clave de Desempeño)'
+        esCorrecta: true
+    
+    respuesta_3_3:
         pregunta: '@pregunta_rrhh_3'
         texto: 'Knowledge Process Integration (Integración de Procesos de Conocimiento)'
+        esCorrecta: false
+    
+    # Respuestas para pregunta 4
+    respuesta_4_1:
+        pregunta: '@pregunta_rrhh_4'
+        texto: 'Prueba psicométrica'
+        esCorrecta: false
+    
+    respuesta_4_2:
+        pregunta: '@pregunta_rrhh_4'
+        texto: 'Encuesta de clima laboral'
+        esCorrecta: true
+    
+    respuesta_4_3:
+        pregunta: '@pregunta_rrhh_4'
+        texto: 'Entrevista de salida'
+        esCorrecta: false
+    
+    # Respuestas para pregunta 5
+    respuesta_5_1:
+        pregunta: '@pregunta_rrhh_5'
+        texto: 'Plan de sucesión'
+        esCorrecta: true
+    
+    respuesta_5_2:
+        pregunta: '@pregunta_rrhh_5'
+        texto: 'Reclutamiento masivo'
+        esCorrecta: false
+    
+    respuesta_5_3:
+        pregunta: '@pregunta_rrhh_5'
+        texto: 'Outsourcing de talento'
+        esCorrecta: false
+    
+    # Respuestas para pregunta 6
+    respuesta_6_1:
+        pregunta: '@pregunta_rrhh_6'
+        texto: 'Evaluación por competencias'
+        esCorrecta: false
+    
+    respuesta_6_2:
+        pregunta: '@pregunta_rrhh_6'
+        texto: 'Gestión por objetivos (MBO)'
+        esCorrecta: true
+    
+    respuesta_6_3:
+        pregunta: '@pregunta_rrhh_6'
+        texto: 'Evaluación 360 grados'
+        esCorrecta: false
+    
+    # Respuestas para pregunta 7
+    respuesta_7_1:
+        pregunta: '@pregunta_rrhh_7'
+        texto: 'Prueba técnica / Ejercicio práctico'
+        esCorrecta: true
+    
+    respuesta_7_2:
+        pregunta: '@pregunta_rrhh_7'
+        texto: 'Entrevista conductual'
+        esCorrecta: false
+    
+    respuesta_7_3:
+        pregunta: '@pregunta_rrhh_7'
+        texto: 'Referencias laborales'
+        esCorrecta: false
+    
+    # Respuestas para pregunta 8
+    respuesta_8_1:
+        pregunta: '@pregunta_rrhh_8'
+        texto: 'Efecto halo (o de cuerno)'
+        esCorrecta: true
+    
+    respuesta_8_2:
+        pregunta: '@pregunta_rrhh_8'
+        texto: 'Efecto Dunning-Kruger'
+        esCorrecta: false
+    
+    respuesta_8_3:
+        pregunta: '@pregunta_rrhh_8'
+        texto: 'Sesgo de supervivencia'
+        esCorrecta: false
+    
+    # Respuestas para pregunta 9
+    respuesta_9_1:
+        pregunta: '@pregunta_rrhh_9'
+        texto: 'Aumentar el salario de todos los empleados'
+        esCorrecta: false
+    
+    respuesta_9_2:
+        pregunta: '@pregunta_rrhh_9'
+        texto: 'Definir responsabilidades, tareas y requisitos del puesto'
+        esCorrecta: true
+    
+    respuesta_9_3:
+        pregunta: '@pregunta_rrhh_9'
+        texto: 'Realizar la evaluación anual de desempeño'
+        esCorrecta: false
+    
+    # Respuestas para pregunta 10
+    respuesta_10_1:
+        pregunta: '@pregunta_rrhh_10'
+        texto: 'Protección de datos personales (ej. GDPR / leyes locales de privacidad)'
+        esCorrecta: true
+    
+    respuesta_10_2:
+        pregunta: '@pregunta_rrhh_10'
+        texto: 'Publicar contratos en la intranet abierta a todo público'
+        esCorrecta: false
+    
+    respuesta_10_3:
+        pregunta: '@pregunta_rrhh_10'
+        texto: 'Compartir historiales laborales con terceros sin consentimiento'
         esCorrecta: false
 
 App\Entity\PreguntaTrivia:
@@ -78,5 +218,40 @@ App\Entity\PreguntaTrivia:
     
     pregunta_trivia_3:
         trivia: '@trivia_rrhh'
-        pregunta: '@pregunta_rrhh_3'
+        pregunta: '@pregunta_rrhh_4'
         orden: 3
+    
+    pregunta_trivia_4:
+        trivia: '@trivia_rrhh'
+        pregunta: '@pregunta_rrhh_3'
+        orden: 4
+    
+    pregunta_trivia_5:
+        trivia: '@trivia_rrhh'
+        pregunta: '@pregunta_rrhh_5'
+        orden: 5
+    
+    pregunta_trivia_6:
+        trivia: '@trivia_rrhh'
+        pregunta: '@pregunta_rrhh_7'
+        orden: 6
+    
+    pregunta_trivia_7:
+        trivia: '@trivia_rrhh'
+        pregunta: '@pregunta_rrhh_9'
+        orden: 7
+    
+    pregunta_trivia_8:
+        trivia: '@trivia_rrhh'
+        pregunta: '@pregunta_rrhh_6'
+        orden: 8
+    
+    pregunta_trivia_9:
+        trivia: '@trivia_rrhh'
+        pregunta: '@pregunta_rrhh_10'
+        orden: 9
+    
+    pregunta_trivia_10:
+        trivia: '@trivia_rrhh'
+        pregunta: '@pregunta_rrhh_8'
+        orden: 10
