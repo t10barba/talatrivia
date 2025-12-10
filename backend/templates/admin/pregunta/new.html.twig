@@ -1,0 +1,62 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block page_title %}Crear Pregunta{% endblock %}
+
+{% block content %}
+    <div class="mb-3">
+        <a href="{{ path('admin_pregunta_index') }}" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    {% for message in app.flashes('danger') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                <div class="mb-3">
+                    <label for="texto" class="form-label">Texto de la Pregunta <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="texto" name="texto" rows="4" required>{{ pregunta.texto ?? '' }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Dificultad <span class="text-danger">*</span></label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="dificultad" id="dificultad1" value="1" {{ pregunta.dificultad == 1 ? 'checked' : '' }} required>
+                            <label class="form-check-label" for="dificultad1">
+                                <span class="badge bg-success">Fácil</span>
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="dificultad" id="dificultad2" value="2" {{ pregunta.dificultad == 2 ? 'checked' : '' }} required>
+                            <label class="form-check-label" for="dificultad2">
+                                <span class="badge bg-warning">Medio</span>
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="dificultad" id="dificultad3" value="3" {{ pregunta.dificultad == 3 ? 'checked' : '' }} required>
+                            <label class="form-check-label" for="dificultad3">
+                                <span class="badge bg-danger">Difícil</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-save"></i> Guardar
+                    </button>
+                    <a href="{{ path('admin_pregunta_index') }}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
