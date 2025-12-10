@@ -60,7 +60,7 @@ class UsuarioCrudController extends AbstractController
                 
                 return $this->redirectToRoute('admin_usuario_index');
             } catch (\Exception $e) {
-                $this->addFlash('danger', 'Error al crear el usuario: ' . $e->getMessage());
+                $this->addFlash('danger', $e->getMessage());
             }
         }
 
@@ -89,7 +89,7 @@ class UsuarioCrudController extends AbstractController
                 
                 return $this->redirectToRoute('admin_usuario_index');
             } catch (\Exception $e) {
-                $this->addFlash('danger', 'Error al actualizar el usuario: ' . $e->getMessage());
+                $this->addFlash('danger', $e->getMessage());
             }
         }
 

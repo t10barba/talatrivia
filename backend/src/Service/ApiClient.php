@@ -4,6 +4,8 @@ namespace App\Service;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 
 class ApiClient
 {
@@ -18,6 +20,8 @@ class ApiClient
         try {
             $response = $this->httpClient->request('GET', $this->apiBaseUrl . $endpoint);
             return $response->toArray();
+        } catch (ClientExceptionInterface | ServerExceptionInterface $e) {
+            $this->handleHttpException($e);
         } catch (TransportExceptionInterface $e) {
             throw new \RuntimeException('Error connecting to API: ' . $e->getMessage());
         }
@@ -30,6 +34,8 @@ class ApiClient
                 'json' => $data,
             ]);
             return $response->toArray();
+        } catch (ClientExceptionInterface | ServerExceptionInterface $e) {
+            $this->handleHttpException($e);
         } catch (TransportExceptionInterface $e) {
             throw new \RuntimeException('Error connecting to API: ' . $e->getMessage());
         }
@@ -42,6 +48,8 @@ class ApiClient
                 'json' => $data,
             ]);
             return $response->toArray();
+        } catch (ClientExceptionInterface | ServerExceptionInterface $e) {
+            $this->handleHttpException($e);
         } catch (TransportExceptionInterface $e) {
             throw new \RuntimeException('Error connecting to API: ' . $e->getMessage());
         }
@@ -51,8 +59,25 @@ class ApiClient
     {
         try {
             $this->httpClient->request('DELETE', $this->apiBaseUrl . $endpoint);
+        } catch (ClientExceptionInterface | ServerExceptionInterface $e) {
+            $this->handleHttpException($e);
         } catch (TransportExceptionInterface $e) {
             throw new \RuntimeException('Error connecting to API: ' . $e->getMessage());
         }
+    }
+
+    private function handleHttpException(ClientExceptionInterface | ServerExceptionInterface $e): never
+    {
+        $response = $e->getResponse();
+        $statusCode = $response->getStatusCode();
+        
+        try {
+            $errorData = $response->toArray(false);
+            $errorMessage = $errorData['error'] ?? $errorData['message'] ?? 'Error desconocido';
+        } catch (\Exception $decodeException) {
+            $errorMessage = 'Error desconocido';
+        }
+
+        throw new \RuntimeException($errorMessage, $statusCode);
     }
 }
