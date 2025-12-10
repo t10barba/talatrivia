@@ -7,13 +7,10 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class ApiClient
 {
-    private string $apiBaseUrl;
-
     public function __construct(
         private HttpClientInterface $httpClient,
-        string $apiBaseUrl = 'http://api_nginx:80'
+        private string $apiBaseUrl
     ) {
-        $this->apiBaseUrl = $apiBaseUrl;
     }
 
     public function get(string $endpoint): array
