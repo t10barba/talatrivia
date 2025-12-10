@@ -35,8 +35,11 @@ usuarioTrivia
     - triviaId
     - usuarioId
     - puntajeTotal (integer, nullable)
-    - completada (boolean)
+    - estado (tinyInt: 0=no iniciado, 1=iniciado, 2=finalizado) - default 0
+    - codigo (Código único para invitar al usuario a responder al trivia vía url) - length 6 characters - uppercase - alphanumeric
     - createdAt
+    - startedAt
+    - finishedAt
 
 respuestaUsuario
     - id
