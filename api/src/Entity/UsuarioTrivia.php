@@ -25,16 +25,36 @@ class UsuarioTrivia
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $puntajeTotal = null;
 
-    #[ORM\Column(type: 'boolean')]
-    private ?bool $completada = null;
+    #[ORM\Column(type: 'smallint', options: ['default' => 0])]
+    private int $estado = 0;
+
+    #[ORM\Column(type: 'string', length: 6, unique: true)]
+    private ?string $codigo = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $startedAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $finishedAt = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
-        $this->completada = false;
+        $this->estado = 0;
+        $this->codigo = $this->generateCodigo();
+    }
+
+    private function generateCodigo(): string
+    {
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $codigo = '';
+        for ($i = 0; $i < 6; $i++) {
+            $codigo .= $characters[random_int(0, strlen($characters) - 1)];
+        }
+        return $codigo;
     }
 
     public function getId(): ?int
@@ -78,14 +98,50 @@ class UsuarioTrivia
         return $this;
     }
 
-    public function getCompletada(): ?bool
+    public function getEstado(): int
     {
-        return $this->completada;
+        return $this->estado;
     }
 
-    public function setCompletada(bool $completada): static
+    public function setEstado(int $estado): static
     {
-        $this->completada = $completada;
+        $this->estado = $estado;
+
+        return $this;
+    }
+
+    public function getCodigo(): ?string
+    {
+        return $this->codigo;
+    }
+
+    public function setCodigo(string $codigo): static
+    {
+        $this->codigo = $codigo;
+
+        return $this;
+    }
+
+    public function getStartedAt(): ?\DateTimeImmutable
+    {
+        return $this->startedAt;
+    }
+
+    public function setStartedAt(?\DateTimeImmutable $startedAt): static
+    {
+        $this->startedAt = $startedAt;
+
+        return $this;
+    }
+
+    public function getFinishedAt(): ?\DateTimeImmutable
+    {
+        return $this->finishedAt;
+    }
+
+    public function setFinishedAt(?\DateTimeImmutable $finishedAt): static
+    {
+        $this->finishedAt = $finishedAt;
 
         return $this;
     }
