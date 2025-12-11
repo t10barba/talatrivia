@@ -20,6 +20,7 @@ respuesta
 
 trivia
     - id
+    - slug (string único)
     - nombre
     - descripcion
     - createdAt

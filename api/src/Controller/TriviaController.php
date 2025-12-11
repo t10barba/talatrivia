@@ -94,8 +94,9 @@ class TriviaController extends AbstractController
     #[OA\RequestBody(
         required: true,
         content: new OA\JsonContent(
-            required: ['nombre', 'descripcion'],
+            required: ['slug', 'nombre', 'descripcion'],
             properties: [
+                new OA\Property(property: 'slug', type: 'string', example: 'trivia-historia'),
                 new OA\Property(property: 'nombre', type: 'string', example: 'Trivia de Historia'),
                 new OA\Property(property: 'descripcion', type: 'string', example: 'Preguntas sobre historia universal')
             ]
@@ -111,16 +112,16 @@ class TriviaController extends AbstractController
         description: 'Datos inválidos o incompletos',
         content: new OA\JsonContent(
             properties: [
-                new OA\Property(property: 'error', type: 'string', example: 'Los campos nombre y descripcion son requeridos')
+                new OA\Property(property: 'error', type: 'string', example: 'Los campos slug, nombre y descripcion son requeridos')
             ]
         )
     )]
     #[OA\Response(
         response: 409,
-        description: 'El nombre ya está registrado',
+        description: 'El slug o nombre ya está registrado',
         content: new OA\JsonContent(
             properties: [
-                new OA\Property(property: 'error', type: 'string', example: 'El nombre ya está registrado')
+                new OA\Property(property: 'error', type: 'string', example: 'El slug ya está registrado')
             ]
         )
     )]
@@ -128,10 +129,27 @@ class TriviaController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['nombre']) || !isset($data['descripcion'])) {
+        if (!isset($data['slug']) || !isset($data['nombre']) || !isset($data['descripcion'])) {
             return $this->json(
-                ['error' => 'Los campos nombre y descripcion son requeridos'],
+                ['error' => 'Los campos slug, nombre y descripcion son requeridos'],
                 Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        // Validar formato del slug (solo letras minúsculas, números y guiones)
+        if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $data['slug'])) {
+            return $this->json(
+                ['error' => 'El slug solo puede contener letras minúsculas, números y guiones'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        // Verificar si el slug ya existe
+        $existingTrivia = $this->triviaRepository->findOneBy(['slug' => $data['slug']]);
+        if ($existingTrivia) {
+            return $this->json(
+                ['error' => 'El slug ya está registrado'],
+                Response::HTTP_CONFLICT
             );
         }
 
@@ -145,6 +163,7 @@ class TriviaController extends AbstractController
         }
 
         $trivia = new Trivia();
+        $trivia->setSlug($data['slug']);
         $trivia->setNombre($data['nombre']);
         $trivia->setDescripcion($data['descripcion']);
 
@@ -178,6 +197,7 @@ class TriviaController extends AbstractController
     #[OA\RequestBody(
         content: new OA\JsonContent(
             properties: [
+                new OA\Property(property: 'slug', type: 'string', example: 'trivia-historia'),
                 new OA\Property(property: 'nombre', type: 'string', example: 'Trivia de Historia'),
                 new OA\Property(property: 'descripcion', type: 'string', example: 'Preguntas sobre historia universal')
             ]
@@ -194,7 +214,7 @@ class TriviaController extends AbstractController
     )]
     #[OA\Response(
         response: 409,
-        description: 'El nombre ya está registrado'
+        description: 'El slug o nombre ya está registrado'
     )]
     public function update(int $id, Request $request): JsonResponse
     {
@@ -205,6 +225,25 @@ class TriviaController extends AbstractController
         }
 
         $data = json_decode($request->getContent(), true);
+
+        if (isset($data['slug'])) {
+            // Validar formato del slug
+            if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $data['slug'])) {
+                return $this->json(
+                    ['error' => 'El slug solo puede contener letras minúsculas, números y guiones'],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+            // Verificar si el slug ya existe en otra trivia
+            $existingTrivia = $this->triviaRepository->findOneBy(['slug' => $data['slug']]);
+            if ($existingTrivia && $existingTrivia->getId() !== $trivia->getId()) {
+                return $this->json(
+                    ['error' => 'El slug ya está registrado'],
+                    Response::HTTP_CONFLICT
+                );
+            }
+            $trivia->setSlug($data['slug']);
+        }
 
         if (isset($data['nombre'])) {
             // Verificar si el nombre ya existe en otra trivia
@@ -266,6 +305,7 @@ class TriviaController extends AbstractController
     {
         return [
             'id' => $trivia->getId(),
+            'slug' => $trivia->getSlug(),
             'nombre' => $trivia->getNombre(),
             'descripcion' => $trivia->getDescripcion(),
             'createdAt' => $trivia->getCreatedAt()?->format('Y-m-d H:i:s'),

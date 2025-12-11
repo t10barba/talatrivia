@@ -5,6 +5,7 @@ namespace App\DTO;
 class Trivia
 {
     private ?int $id = null;
+    private ?string $slug = null;
     private ?string $nombre = null;
     private ?string $descripcion = null;
     private ?\DateTimeImmutable $createdAt = null;
@@ -17,6 +18,17 @@ class Trivia
     public function setId(?int $id): self
     {
         $this->id = $id;
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): self
+    {
+        $this->slug = $slug;
         return $this;
     }
 
@@ -57,6 +69,7 @@ class Trivia
     {
         $trivia = new self();
         $trivia->setId($data['id'] ?? null);
+        $trivia->setSlug($data['slug'] ?? null);
         $trivia->setNombre($data['nombre'] ?? null);
         $trivia->setDescripcion($data['descripcion'] ?? null);
         
@@ -70,6 +83,7 @@ class Trivia
     public function toArray(): array
     {
         return [
+            'slug' => $this->slug,
             'nombre' => $this->nombre,
             'descripcion' => $this->descripcion,
         ];
