@@ -1,0 +1,637 @@
+{
+	"info": {
+		"_postman_id": "talatrivia-juego-api",
+		"name": "Talatrivia - Juego API",
+		"description": "Colección de endpoints para probar el juego de trivia. Incluye 3 endpoints principales y escenarios de prueba.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "slug",
+			"value": "rrhh-2025",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Juego - Flujo completo",
+			"item": [
+				{
+					"name": "1. Obtener primera Pregunta (TEST01 - No iniciado)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has preguntaId\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('preguntaId');",
+									"    pm.expect(jsonData).to.have.property('texto');",
+									"    pm.expect(jsonData).to.have.property('respuestas');",
+									"    pm.expect(jsonData).to.have.property('numeroPregunta');",
+									"    pm.expect(jsonData).to.have.property('totalPreguntas');",
+									"});",
+									"",
+									"pm.test(\"Has 3 respuestas\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.respuestas).to.be.an('array');",
+									"    pm.expect(jsonData.respuestas.length).to.equal(3);",
+									"});",
+									"",
+									"// Guardar primera respuestaId para siguiente request",
+									"var jsonData = pm.response.json();",
+									"if (jsonData.respuestas && jsonData.respuestas.length > 0) {",
+									"    pm.collectionVariables.set(\"respuestaId\", jsonData.respuestas[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/TEST01/pregunta",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"TEST01",
+								"pregunta"
+							]
+						},
+						"description": "Obtiene la primera pregunta de la trivia. El usuario está en estado 0 (no iniciado). Al obtener esta pregunta, el estado cambiará a 1 (iniciado)."
+					},
+					"response": []
+				},
+				{
+					"name": "2. Enviar Respuesta (TEST01)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response indicates result\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('correcto');",
+									"    pm.expect(jsonData).to.have.property('puntajeObtenido');",
+									"    pm.expect(jsonData).to.have.property('finalizado');",
+									"    pm.expect(jsonData.finalizado).to.equal(false);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"respuestaId\": {{respuestaId}}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/TEST01/respuesta",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"TEST01",
+								"respuesta"
+							]
+						},
+						"description": "Envía una respuesta a la pregunta actual. Retorna si fue correcta, el puntaje obtenido y si la trivia finalizó."
+					},
+					"response": []
+				},
+				{
+					"name": "3. Continuar Juego (TEST02 - Iniciado)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Returns next unanswered question\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.numeroPregunta).to.equal(6);",
+									"    pm.expect(jsonData.totalPreguntas).to.equal(10);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/TEST02/pregunta",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"TEST02",
+								"pregunta"
+							]
+						},
+						"description": "TEST02 ya tiene 5 preguntas contestadas. Este endpoint retorna la pregunta 6 de 10."
+					},
+					"response": []
+				},
+				{
+					"name": "4. Ver Puntaje Final (TEST03 - Finalizado Perfecto)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Returns correct score\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.puntajeTotal).to.equal(18);",
+									"    pm.expect(jsonData).to.have.property('tiempoTranscurrido');",
+									"    pm.expect(jsonData).to.have.property('nombreTrivia');",
+									"    pm.expect(jsonData).to.have.property('nombreUsuario');",
+									"});",
+									"",
+									"pm.test(\"Time format is MM:SS\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.tiempoTranscurrido).to.match(/^\\d{2}:\\d{2}$/);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/TEST03/puntaje",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"TEST03",
+								"puntaje"
+							]
+						},
+						"description": "TEST03 tiene todas las preguntas correctas (18 puntos). Muestra el puntaje final y tiempo transcurrido."
+					},
+					"response": []
+				},
+				{
+					"name": "5. Ver Puntaje Final (TEST04 - Finalizado Mixto)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Returns correct score for mixed answers\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.puntajeTotal).to.equal(11);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/TEST04/puntaje",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"TEST04",
+								"puntaje"
+							]
+						},
+						"description": "TEST04 tiene 6 correctas y 4 incorrectas (11 puntos totales)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Validaciones y Errores",
+			"item": [
+				{
+					"name": "Error - Trivia No Existe",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Error code is TRIVIA_NOT_FOUND\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.code).to.equal('TRIVIA_NOT_FOUND');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/trivia-inexistente/TEST01/pregunta",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"trivia-inexistente",
+								"TEST01",
+								"pregunta"
+							]
+						},
+						"description": "Intenta acceder a una trivia que no existe."
+					},
+					"response": []
+				},
+				{
+					"name": "Error - Código Inválido",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Error code is INVALID_CODE\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.code).to.equal('INVALID_CODE');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/XXXXXX/pregunta",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"XXXXXX",
+								"pregunta"
+							]
+						},
+						"description": "Intenta acceder con un código que no existe."
+					},
+					"response": []
+				},
+				{
+					"name": "Error - Trivia Ya Finalizada (GET Pregunta)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Returns finalizado flag\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.finalizado).to.equal(true);",
+									"    pm.expect(jsonData).to.have.property('nombreUsuario');",
+									"    pm.expect(jsonData).to.have.property('nombreTrivia');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/TEST03/pregunta",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"TEST03",
+								"pregunta"
+							]
+						},
+						"description": "TEST03 ya está finalizado. Retorna flag indicando que no hay más preguntas."
+					},
+					"response": []
+				},
+				{
+					"name": "Error - Trivia Ya Finalizada (POST Respuesta)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Error code is TRIVIA_ALREADY_FINISHED\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.code).to.equal('TRIVIA_ALREADY_FINISHED');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"respuestaId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/TEST03/respuesta",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"TEST03",
+								"respuesta"
+							]
+						},
+						"description": "Intenta enviar una respuesta cuando la trivia ya está finalizada."
+					},
+					"response": []
+				},
+				{
+					"name": "Error - Puntaje Sin Finalizar",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Error code is TRIVIA_NOT_FINISHED\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.code).to.equal('TRIVIA_NOT_FINISHED');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/TEST01/puntaje",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"TEST01",
+								"puntaje"
+							]
+						},
+						"description": "Intenta consultar el puntaje cuando la trivia aún no ha finalizado."
+					},
+					"response": []
+				},
+				{
+					"name": "Error - respuestaId Faltante",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Error code is MISSING_RESPUESTA_ID\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.code).to.equal('MISSING_RESPUESTA_ID');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"otroCampo\": 123\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/TEST02/respuesta",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"TEST02",
+								"respuesta"
+							]
+						},
+						"description": "Intenta enviar respuesta sin el campo respuestaId requerido."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Escenarios de Prueba",
+			"item": [
+				{
+					"name": "TEST01 - No Iniciado (Estado 0)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/TEST01/pregunta",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"TEST01",
+								"pregunta"
+							]
+						},
+						"description": "Usuario sin respuestas. Primera pregunta iniciará el juego."
+					},
+					"response": []
+				},
+				{
+					"name": "TEST02 - Iniciado (Estado 1)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/TEST02/pregunta",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"TEST02",
+								"pregunta"
+							]
+						},
+						"description": "Usuario con 5 preguntas contestadas (6 puntos). Retorna pregunta 6."
+					},
+					"response": []
+				},
+				{
+					"name": "TEST03 - Finalizado Perfecto (Estado 2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/TEST03/pregunta",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"TEST03",
+								"pregunta"
+							]
+						},
+						"description": "Usuario con 10 respuestas correctas (18 puntos). Retorna finalizado=true."
+					},
+					"response": []
+				},
+				{
+					"name": "TEST04 - Finalizado Mixto (Estado 2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/TEST04/pregunta",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"TEST04",
+								"pregunta"
+							]
+						},
+						"description": "Usuario con 6 correctas y 4 incorrectas (11 puntos). Retorna finalizado=true."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
