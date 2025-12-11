@@ -262,6 +262,76 @@
 						"description": "TEST04 tiene 6 correctas y 4 incorrectas (11 puntos totales)."
 					},
 					"response": []
+				},
+				{
+					"name": "6. Ver Ranking (Top mejores puntajes)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Returns ranking data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('nombreTrivia');",
+									"    pm.expect(jsonData).to.have.property('ranking');",
+									"    pm.expect(jsonData.ranking).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Ranking is ordered by score DESC\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.ranking.length > 1) {",
+									"        for (let i = 0; i < jsonData.ranking.length - 1; i++) {",
+									"            pm.expect(jsonData.ranking[i].puntajeTotal).to.be.at.least(jsonData.ranking[i+1].puntajeTotal);",
+									"        }",
+									"    }",
+									"});",
+									"",
+									"pm.test(\"Each ranking item has required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.ranking.length > 0) {",
+									"        var item = jsonData.ranking[0];",
+									"        pm.expect(item).to.have.property('posicion');",
+									"        pm.expect(item).to.have.property('nombreUsuario');",
+									"        pm.expect(item).to.have.property('puntajeTotal');",
+									"        pm.expect(item).to.have.property('tiempoTranscurrido');",
+									"        pm.expect(item).to.have.property('finishedAt');",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/ranking?limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"ranking"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Número máximo de resultados"
+								}
+							]
+						},
+						"description": "Obtiene el ranking de mejores puntajes de la trivia. Solo incluye trivias finalizadas (estado=2). Ordenado por puntaje DESC y tiempo ASC."
+					},
+					"response": []
 				}
 			]
 		},
@@ -628,6 +698,35 @@
 							]
 						},
 						"description": "Usuario con 6 correctas y 4 incorrectas (11 puntos). Retorna finalizado=true."
+					},
+					"response": []
+				},
+				{
+					"name": "Ranking - Ver Top Puntajes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/juego/{{slug}}/ranking?limit=50",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"juego",
+								"{{slug}}",
+								"ranking"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"description": "Número máximo de resultados"
+								}
+							]
+						},
+						"description": "Obtiene ranking completo de la trivia con hasta 50 participantes."
 					},
 					"response": []
 				}
