@@ -540,4 +540,115 @@ class JuegoController extends AbstractController
             'nombreUsuario' => $usuarioTrivia->getUsuario()->getNombre()
         ]);
     }
+
+    #[Route('/{slug}/ranking', name: 'juego_ranking', methods: ['GET'], requirements: ['slug' => '[a-z0-9\-]+'])]
+    #[OA\Get(
+        path: '/api/v1/juego/{slug}/ranking',
+        summary: 'Obtener ranking de mejores puntajes',
+        description: 'Retorna el top de usuarios con mejores puntajes para una trivia específica. Solo incluye trivias finalizadas (estado=2). Ordenado por puntaje descendente y tiempo ascendente.',
+        tags: ['Juego']
+    )]
+    #[OA\Parameter(
+        name: 'slug',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'string'),
+        example: 'rrhh-2025'
+    )]
+    #[OA\Parameter(
+        name: 'limit',
+        in: 'query',
+        required: false,
+        schema: new OA\Schema(type: 'integer', default: 10),
+        description: 'Número máximo de resultados a retornar'
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Lista de mejores puntajes',
+        content: new OA\JsonContent(
+            type: 'object',
+            properties: [
+                new OA\Property(property: 'nombreTrivia', type: 'string', example: 'Trivia RRHH 2025'),
+                new OA\Property(
+                    property: 'ranking',
+                    type: 'array',
+                    items: new OA\Items(
+                        type: 'object',
+                        properties: [
+                            new OA\Property(property: 'posicion', type: 'integer', example: 1),
+                            new OA\Property(property: 'nombreUsuario', type: 'string', example: 'Juan Pérez'),
+                            new OA\Property(property: 'puntajeTotal', type: 'integer', example: 18),
+                            new OA\Property(property: 'tiempoTranscurrido', type: 'string', example: '03:45'),
+                            new OA\Property(property: 'finishedAt', type: 'string', format: 'date-time', example: '2025-12-11T15:30:00+00:00')
+                        ]
+                    )
+                )
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 404,
+        description: 'Trivia no encontrada',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'error', type: 'string', example: 'No encontramos el juego de trivia que buscas :('),
+                new OA\Property(property: 'code', type: 'string', example: 'TRIVIA_NOT_FOUND')
+            ]
+        )
+    )]
+    public function getRanking(string $slug, Request $request): JsonResponse
+    {
+        $trivia = $this->triviaRepo->findOneBy(['slug' => $slug]);
+        
+        if (!$trivia) {
+            return new JsonResponse([
+                'error' => 'No encontramos el juego de trivia que buscas :(',
+                'code' => 'TRIVIA_NOT_FOUND'
+            ], 404);
+        }
+
+        $limit = (int) $request->query->get('limit', 10);
+        if ($limit < 1 || $limit > 100) {
+            $limit = 10;
+        }
+
+        // Obtener usuarios que completaron la trivia, ordenados por puntaje DESC y tiempo ASC
+        $qb = $this->em->createQueryBuilder();
+        $qb->select('ut', 'u')
+            ->from('App\Entity\UsuarioTrivia', 'ut')
+            ->join('ut.usuario', 'u')
+            ->where('ut.trivia = :trivia')
+            ->andWhere('ut.estado = 2')
+            ->andWhere('ut.startedAt IS NOT NULL')
+            ->andWhere('ut.finishedAt IS NOT NULL')
+            ->setParameter('trivia', $trivia)
+            ->orderBy('ut.puntajeTotal', 'DESC')
+            ->addOrderBy('ut.finishedAt - ut.startedAt', 'ASC') // Menor tiempo primero
+            ->setMaxResults($limit);
+
+        $usuariosTrivias = $qb->getQuery()->getResult();
+
+        $ranking = [];
+        $posicion = 1;
+
+        foreach ($usuariosTrivias as $ut) {
+            $diff = $ut->getFinishedAt()->getTimestamp() - $ut->getStartedAt()->getTimestamp();
+            $minutos = floor($diff / 60);
+            $segundos = $diff % 60;
+            $tiempoFormateado = sprintf("%02d:%02d", $minutos, $segundos);
+
+            $ranking[] = [
+                'posicion' => $posicion++,
+                'nombreUsuario' => $ut->getUsuario()->getNombre(),
+                'puntajeTotal' => $ut->getPuntajeTotal(),
+                'tiempoTranscurrido' => $tiempoFormateado,
+                'finishedAt' => $ut->getFinishedAt()->format('c')
+            ];
+        }
+
+        return new JsonResponse([
+            'nombreTrivia' => $trivia->getNombre(),
+            'ranking' => $ranking
+        ]);
+    }
 }
