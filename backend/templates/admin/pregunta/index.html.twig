@@ -40,7 +40,7 @@
                     {% for pregunta in preguntas %}
                         <tr>
                             <td>{{ pregunta.id }}</td>
-                            <td>{{ pregunta.texto|length > 60 ? pregunta.texto|slice(0, 60) ~ '...' : pregunta.texto }}</td>
+                            <td>{{ pregunta.texto }}</td>
                             <td>
                                 <span class="badge bg-{{ pregunta.dificultad == 1 ? 'success' : (pregunta.dificultad == 2 ? 'warning' : 'danger') }}">
                                     {% if pregunta.dificultad == 1 %}Fácil

@@ -1,5 +1,6 @@
 App\Entity\Trivia:
     trivia_rrhh:
+        slug: 'rrhh-2025'
         nombre: 'Trivia de Recursos Humanos'
         descripcion: 'Pon a prueba tus conocimientos sobre gestión de recursos humanos y buenas prácticas laborales'
 

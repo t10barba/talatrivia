@@ -57,6 +57,14 @@
         <div class="card-body">
             <form method="post" id="triviaForm">
                 <div class="mb-3">
+                    <label for="slug" class="form-label">Slug <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="slug" name="slug" value="{{ trivia.slug ?? '' }}" 
+                           pattern="[a-z0-9]+(?:-[a-z0-9]+)*" 
+                           title="Solo letras minúsculas, números y guiones" required>
+                    <small class="form-text text-muted">Solo letras minúsculas, números y guiones (ej: trivia-historia)</small>
+                </div>
+
+                <div class="mb-3">
                     <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" id="nombre" name="nombre" value="{{ trivia.nombre ?? '' }}" required>
                 </div>

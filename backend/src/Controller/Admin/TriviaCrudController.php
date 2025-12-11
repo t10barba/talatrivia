@@ -67,6 +67,7 @@ class TriviaCrudController extends BaseAdminController
         $trivia = new Trivia();
 
         if ($request->isMethod('POST')) {
+            $trivia->setSlug($request->request->get('slug'));
             $trivia->setNombre($request->request->get('nombre'));
             $trivia->setDescripcion($request->request->get('descripcion'));
 
@@ -117,6 +118,7 @@ class TriviaCrudController extends BaseAdminController
         $preguntasIds = array_column($preguntasActuales, 'preguntaId');
 
         if ($request->isMethod('POST')) {
+            $trivia->setSlug($request->request->get('slug'));
             $trivia->setNombre($request->request->get('nombre'));
             $trivia->setDescripcion($request->request->get('descripcion'));
 

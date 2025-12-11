@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # Database Service - MySQL 8.0
   database:
     image: mysql:8.0
     container_name: talatrivia_db
@@ -16,6 +17,7 @@ services:
     networks:
       - talatrivia_network
 
+  # API Service - Symfony PHP Framework
   api:
     build:
       context: ./api
@@ -31,6 +33,7 @@ services:
     networks:
       - talatrivia_network
 
+  # Nginx Web Server for API
   api_nginx:
     image: nginx:alpine
     container_name: talatrivia_api_nginx
@@ -44,6 +47,7 @@ services:
     networks:
       - talatrivia_network
 
+  # Backend Service - Symfony PHP Framework
   backend:
     build:
       context: ./backend
@@ -59,6 +63,7 @@ services:
     networks:
       - talatrivia_network
 
+  # Nginx Web Server for Backend
   backend_nginx:
     image: nginx:alpine
     container_name: talatrivia_backend_nginx
@@ -72,6 +77,7 @@ services:
     networks:
       - talatrivia_network
 
+  # Frontend Service - Next.js React Framework
   frontend:
     build:
       context: ./frontend
@@ -85,6 +91,7 @@ services:
       - /app/.next
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8080
+      NEXT_PUBLIC_FEEDBACK_DELAY: "2000"
       WATCHPACK_POLLING: "true"
       CHOKIDAR_USEPOLLING: "true"
     depends_on:

@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
     schema: 'Trivia',
     title: 'Trivia',
     description: 'Entidad Trivia del sistema',
-    required: ['id', 'nombre', 'descripcion', 'createdAt']
+    required: ['id', 'slug', 'nombre', 'descripcion', 'createdAt']
 )]
 class Trivia
 {
@@ -22,12 +22,16 @@ class Trivia
     #[OA\Property(description: 'ID único de la trivia', example: 1)]
     private ?int $id = null;
 
+    #[ORM\Column(length: 255, unique: true)]
+    #[OA\Property(description: 'Slug único de la trivia', maxLength: 255, example: 'trivia-rrhh')]
+    private ?string $slug = null;
+
     #[ORM\Column(length: 255)]
-    #[OA\Property(description: 'Nombre de la trivia', maxLength: 255, example: 'Trivia de Historia')]
+    #[OA\Property(description: 'Nombre de la trivia', maxLength: 255, example: 'Trivia de RRHH')]
     private ?string $nombre = null;
 
     #[ORM\Column(type: 'text')]
-    #[OA\Property(description: 'Descripción de la trivia', example: 'Preguntas sobre historia universal')]
+    #[OA\Property(description: 'Descripción de la trivia', example: 'Preguntas sobre recursos humanos')]
     private ?string $descripcion = null;
 
     #[ORM\Column]
@@ -42,6 +46,18 @@ class Trivia
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
+
+        return $this;
     }
 
     public function getNombre(): ?string

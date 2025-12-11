@@ -29,6 +29,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Slug</th>
                         <th>Nombre</th>
                         <th>Descripción</th>
                         <th>Fecha de Creación</th>
@@ -39,8 +40,9 @@
                     {% for trivia in trivias %}
                         <tr>
                             <td>{{ trivia.id }}</td>
+                            <td><code>{{ trivia.slug }}</code></td>
                             <td>{{ trivia.nombre }}</td>
-                            <td>{{ trivia.descripcion|length > 50 ? trivia.descripcion|slice(0, 50) ~ '...' : trivia.descripcion }}</td>
+                            <td>{{ trivia.descripcion }}</td>
                             <td>{{ trivia.createdAt ? trivia.createdAt|date('d/m/Y H:i') : '-' }}</td>
                             <td>
                                 <a href="{{ path('admin_trivia_detail', {id: trivia.id}) }}" class="btn btn-sm btn-info">
@@ -58,7 +60,7 @@
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="5" class="text-center">No hay trivias registradas</td>
+                            <td colspan="6" class="text-center">No hay trivias registradas</td>
                         </tr>
                     {% endfor %}
                 </tbody>

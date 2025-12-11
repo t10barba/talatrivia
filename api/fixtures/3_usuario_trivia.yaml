@@ -1,0 +1,40 @@
+App\Entity\UsuarioTrivia:
+    # Usuario trivia en estado inicial (no iniciado)
+    usuario_trivia_test_inicial:
+        trivia: '@trivia_rrhh'
+        usuario: '@usuario_1'
+        codigo: 'TEST01'
+        estado: 0
+        puntajeTotal: null
+        startedAt: null
+        finishedAt: null
+
+    # Usuario trivia en estado iniciado (ha respondido algunas preguntas)
+    usuario_trivia_test_iniciado:
+        trivia: '@trivia_rrhh'
+        usuario: '@usuario_2'
+        codigo: 'TEST02'
+        estado: 1
+        puntajeTotal: null
+        startedAt: '<(new \DateTimeImmutable("-10 minutes"))>'
+        finishedAt: null
+
+    # Usuario trivia en estado finalizado (completó todas las preguntas correctamente)
+    usuario_trivia_test_finalizado:
+        trivia: '@trivia_rrhh'
+        usuario: '@usuario_3'
+        codigo: 'TEST03'
+        estado: 2
+        puntajeTotal: 18
+        startedAt: '<(new \DateTimeImmutable("-15 minutes"))>'
+        finishedAt: '<(new \DateTimeImmutable("-5 minutes"))>'
+
+    # Usuario trivia finalizado con respuestas mixtas (correctas e incorrectas)
+    usuario_trivia_test_mixto:
+        trivia: '@trivia_rrhh'
+        usuario: '@usuario_4'
+        codigo: 'TEST04'
+        estado: 2
+        puntajeTotal: 11
+        startedAt: '<(new \DateTimeImmutable("-20 minutes"))>'
+        finishedAt: '<(new \DateTimeImmutable("-8 minutes"))>'
