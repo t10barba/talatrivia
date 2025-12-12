@@ -197,6 +197,17 @@ Ejemplo con fixtures:
 http://localhost:3000/trivia/rrhh-2025/TEST01
 ```
 
+#### Ranking de la Trivia
+```
+http://localhost:3000/trivia/{slug}/ranking
+```
+
+Ejemplo con fixtures:
+```
+http://localhost:3000/trivia/rrhh-2025/ranking
+```
+Muestra el leaderboard con todos los usuarios que completaron la trivia, ordenados por puntaje y tiempo.
+
 #### Panel de Administración
 ```
 http://localhost:8081/admin
