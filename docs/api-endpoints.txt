@@ -5,6 +5,12 @@ DOCUMENTACIÓN
 GET     /api/doc                                            - Swagger UI
 GET     /api/doc.json                                       - Swagger JSON
 
+JUEGO (Endpoints principales para el frontend)
+GET     /api/juego/{slug}/pregunta/{codigo}                 - Obtener siguiente pregunta para responder
+POST    /api/juego/{slug}/respuesta/{codigo}                - Enviar respuesta de usuario
+GET     /api/juego/{slug}/puntaje/{codigo}                  - Obtener puntaje final del usuario
+GET     /api/juego/{slug}/ranking                           - Obtener ranking de la trivia (leaderboard)
+
 PREGUNTAS
 GET     /api/v1/preguntas                                   - Listar preguntas
 GET     /api/v1/preguntas/{id}                              - Ver pregunta
