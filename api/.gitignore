@@ -8,3 +8,11 @@
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
+
+###> symfony/lock-file ###
+symfony.lock
+###< symfony/lock-file ###
+
+###> auto-generated files ###
+/config/reference.php
+###< auto-generated files ###
