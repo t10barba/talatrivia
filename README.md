@@ -156,7 +156,7 @@ Cliente → Nginx (8080/8081) → PHP-FPM (9000) → Symfony → Base de Datos
 
 ### 1. Clonar el Repositorio
 ```bash
-git clone <repository-url>
+git clone https://github.com/t10barba/talatrivia.git
 cd talatrivia
 ```
 
@@ -194,7 +194,7 @@ http://localhost:3000/trivia/{slug}/{codigo}
 
 Ejemplo con fixtures:
 ```
-http://localhost:3000/trivia/rrhh-onboarding/USR001-CODE
+http://localhost:3000/trivia/rrhh-2025/TEST01
 ```
 
 #### Panel de Administración
@@ -210,33 +210,35 @@ http://localhost:8080/api/doc
 
 ## 📋 Datos de Prueba (Fixtures)
 
-El sistema incluye **4 escenarios de prueba** precargados:
+El sistema incluye **1 trivia de ejemplo** con **4 usuarios en diferentes estados**:
 
-### Trivia 1: RRHH Onboarding
-- **Slug**: `rrhh-onboarding`
-- **Usuarios**:
-  - USR001-CODE (Juan Pérez - Sin iniciar)
-  - USR002-CODE (María García - Sin iniciar)
-- **Preguntas**: 5 preguntas sobre recursos humanos
-- **Estado**: Activa, lista para jugar
+### Trivia: Recursos Humanos 2025
+- **Slug**: `rrhh-2025`
+- **Nombre**: Trivia de Recursos Humanos
+- **Descripción**: Pon a prueba tus conocimientos sobre gestión de recursos humanos y buenas prácticas laborales
+- **Preguntas**: 10 preguntas de diferentes niveles de dificultad
 
-### Trivia 2: Marketing Digital
-- **Slug**: `marketing-digital`
-- **Usuarios**:
-  - USR003-CODE (Carlos López - En progreso: 2/5 preguntas)
-- **Preguntas**: 5 preguntas sobre marketing
-- **Estado**: Activa, progreso guardado
+#### Usuarios de prueba:
 
-### Trivia 3: Seguridad Informática
-- **Slug**: `seguridad-informatica`
-- **Usuarios**:
-  - USR004-CODE (Ana Martínez - Finalizada: 5/5 correctas)
-- **Preguntas**: 5 preguntas sobre seguridad
-- **Estado**: Activa, completada con puntaje perfecto
+1. **TEST01** - Daniela Sandía
+   - **Estado**: Sin iniciar (estado 0)
+   - **Progreso**: 0/10 preguntas
+   - **URL**: http://localhost:3000/trivia/rrhh-2025/TEST01
 
-### Trivia 4: Ventas Avanzadas
-- **Slug**: `ventas-avanzadas`
-- **Estado**: Inactiva (no se puede jugar)
+2. **TEST02** - José Limón  
+   - **Estado**: En progreso (estado 1)
+   - **Progreso**: Ha respondido algunas preguntas
+   - **URL**: http://localhost:3000/trivia/rrhh-2025/TEST02
+
+3. **TEST03** - Carlos Manzana
+   - **Estado**: Finalizado (estado 2)
+   - **Puntaje**: 18 puntos (todas correctas)
+   - **URL**: http://localhost:3000/trivia/rrhh-2025/TEST03
+
+4. **TEST04** - Ana Kiwi
+   - **Estado**: Finalizado (estado 2)
+   - **Puntaje**: 11 puntos (respuestas mixtas)
+   - **URL**: http://localhost:3000/trivia/rrhh-2025/TEST04
 
 ## 🎮 API Endpoints
 
@@ -253,21 +255,22 @@ GET /api/juego/{slug}/pregunta/{codigo}
 ```
 
 **Parámetros:**
-- `slug`: Slug de la trivia (ej: "rrhh-onboarding")
-- `codigo`: Código único del usuario (ej: "USR001-CODE")
+- `slug`: Slug de la trivia (ej: "rrhh-2025")
+- `codigo`: Código único del usuario (ej: "TEST01")
 
 **Respuesta Exitosa (200):**
 ```json
 {
   "pregunta_id": 1,
-  "titulo": "¿Cuántos días de vacaciones corresponden?",
+  "titulo": "¿Qué es el onboarding en recursos humanos?",
   "respuestas": [
-    {"id": 1, "texto": "15 días"},
-    {"id": 2, "texto": "20 días"},
-    {"id": 3, "texto": "30 días"}
+    {"id": 1, "texto": "Proceso de integración de nuevos empleados"},
+    {"id": 2, "texto": "Programa de capacitación continua"},
+    {"id": 3, "texto": "Evaluación anual de desempeño"},
+    {"id": 4, "texto": "Sistema de gestión de nómina"}
   ],
   "numero_pregunta": 1,
-  "total_preguntas": 5
+  "total_preguntas": 10
 }
 ```
 
@@ -309,11 +312,11 @@ GET /api/juego/{slug}/puntaje/{codigo}
 **Respuesta Exitosa (200):**
 ```json
 {
-  "puntaje": 80,
-  "total_preguntas": 5,
-  "respuestas_correctas": 4,
-  "trivia": "RRHH Onboarding",
-  "tiempo_segundos": 245
+  "puntaje": 18,
+  "total_preguntas": 10,
+  "respuestas_correctas": 10,
+  "trivia": "Trivia de Recursos Humanos",
+  "tiempo_segundos": 600
 }
 ```
 
@@ -329,19 +332,19 @@ GET /api/juego/{slug}/ranking?limit=50
 ```json
 [
   {
-    "usuario_id": 4,
-    "nombre": "Ana Martínez",
-    "apellidos": "Rodríguez",
-    "puntaje": 100,
-    "tiempo_segundos": 180,
+    "usuario_id": 3,
+    "nombre": "Carlos",
+    "apellidos": "Manzana",
+    "puntaje": 18,
+    "tiempo_segundos": 600,
     "completada_en": "2025-12-12T15:30:45+00:00"
   },
   {
-    "usuario_id": 3,
-    "nombre": "Carlos López",
-    "apellidos": "Fernández",
-    "puntaje": 60,
-    "tiempo_segundos": 320,
+    "usuario_id": 4,
+    "nombre": "Ana",
+    "apellidos": "Kiwi",
+    "puntaje": 11,
+    "tiempo_segundos": 720,
     "completada_en": "2025-12-12T16:10:22+00:00"
   }
 ]
