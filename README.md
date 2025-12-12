@@ -282,24 +282,27 @@ GET /api/juego/{slug}/pregunta/{codigo}
 **Respuesta Exitosa (200):**
 ```json
 {
-  "pregunta_id": 1,
-  "titulo": "¿Qué es el onboarding en recursos humanos?",
+  "preguntaId": 1,
+  "texto": "¿Qué es el onboarding en recursos humanos?",
   "respuestas": [
     {"id": 1, "texto": "Proceso de integración de nuevos empleados"},
     {"id": 2, "texto": "Programa de capacitación continua"},
     {"id": 3, "texto": "Evaluación anual de desempeño"},
     {"id": 4, "texto": "Sistema de gestión de nómina"}
   ],
-  "numero_pregunta": 1,
-  "total_preguntas": 10
+  "numeroPregunta": 1,
+  "totalPreguntas": 10,
+  "nombreTrivia": "Trivia de Recursos Humanos",
+  "nombreUsuario": "Daniela"
 }
 ```
 
 **Respuesta cuando ya terminó:**
 ```json
 {
-  "mensaje": "Ya has respondido todas las preguntas de esta trivia",
-  "completada": true
+  "finalizado": true,
+  "nombreUsuario": "Daniela",
+  "nombreTrivia": "Trivia de Recursos Humanos"
 }
 ```
 
@@ -311,8 +314,7 @@ POST /api/juego/{slug}/respuesta/{codigo}
 **Body:**
 ```json
 {
-  "pregunta_id": 1,
-  "respuesta_id": 2
+  "respuestaId": 1
 }
 ```
 
@@ -320,8 +322,8 @@ POST /api/juego/{slug}/respuesta/{codigo}
 ```json
 {
   "correcto": true,
-  "respuesta_correcta_id": 2,
-  "completada": false
+  "puntajeObtenido": 2,
+  "finalizado": false
 }
 ```
 
@@ -333,11 +335,10 @@ GET /api/juego/{slug}/puntaje/{codigo}
 **Respuesta Exitosa (200):**
 ```json
 {
-  "puntaje": 18,
-  "total_preguntas": 10,
-  "respuestas_correctas": 10,
-  "trivia": "Trivia de Recursos Humanos",
-  "tiempo_segundos": 600
+  "puntajeTotal": 18,
+  "tiempoTranscurrido": "10:00",
+  "nombreTrivia": "Trivia de Recursos Humanos",
+  "nombreUsuario": "Carlos"
 }
 ```
 
@@ -351,24 +352,25 @@ GET /api/juego/{slug}/ranking?limit=50
 
 **Respuesta Exitosa (200):**
 ```json
-[
-  {
-    "usuario_id": 3,
-    "nombre": "Carlos",
-    "apellidos": "Manzana",
-    "puntaje": 18,
-    "tiempo_segundos": 600,
-    "completada_en": "2025-12-12T15:30:45+00:00"
-  },
-  {
-    "usuario_id": 4,
-    "nombre": "Ana",
-    "apellidos": "Kiwi",
-    "puntaje": 11,
-    "tiempo_segundos": 720,
-    "completada_en": "2025-12-12T16:10:22+00:00"
-  }
-]
+{
+  "nombreTrivia": "Trivia de Recursos Humanos",
+  "ranking": [
+    {
+      "posicion": 1,
+      "nombreUsuario": "Carlos",
+      "puntajeTotal": 18,
+      "tiempoTranscurrido": "10:00",
+      "finishedAt": "2025-12-12T15:30:45+00:00"
+    },
+    {
+      "posicion": 2,
+      "nombreUsuario": "Ana",
+      "puntajeTotal": 11,
+      "tiempoTranscurrido": "12:00",
+      "finishedAt": "2025-12-12T16:10:22+00:00"
+    }
+  ]
+}
 ```
 
 ### Códigos de Error Comunes
