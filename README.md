@@ -160,7 +160,17 @@ git clone https://github.com/t10barba/talatrivia.git
 cd talatrivia
 ```
 
-### 2. Levantar los Servicios con Docker Compose
+### 2. Configurar Variables de Entorno
+```bash
+# Copiar archivos de ejemplo para API y Backend
+cp api/.env.example api/.env
+cp backend/.env.example backend/.env
+
+# Opcional: Personalizar credenciales en .env si es necesario
+# Los valores por defecto están listos para Docker Compose
+```
+
+### 3. Levantar los Servicios con Docker Compose
 ```bash
 docker compose up -d --build
 ```
@@ -171,7 +181,7 @@ Esto iniciará:
 - **Frontend**: http://localhost:3000
 - **MySQL**: Puerto 3306 (interno)
 
-### 3. Ejecutar Migraciones y Cargar Fixtures
+### 4. Ejecutar Migraciones y Cargar Fixtures
 ```bash
 # Crear estructura de base de datos
 docker compose exec api bin/console doctrine:migrations:migrate --no-interaction
@@ -180,7 +190,7 @@ docker compose exec api bin/console doctrine:migrations:migrate --no-interaction
 docker compose exec api bin/console hautelook:fixtures:load --no-interaction
 ```
 
-### 4. Acceder a las Aplicaciones
+### 5. Acceder a las Aplicaciones
 
 #### Frontend (Juego)
 ```
