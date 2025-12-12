@@ -434,15 +434,17 @@ docker compose exec api bin/console doctrine:migrations:status
 Para empezar desde cero (⚠️ **elimina todos los datos**):
 
 ```bash
-# Opción 1: Resetear todo
+# Opción 1: Resetear todo (método recomendado para Docker)
 docker compose exec api bin/console doctrine:database:drop --force
-docker compose exec api bin/console doctrine:database:create
+docker compose exec database mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS talatrivia CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 docker compose exec api bin/console doctrine:migrations:migrate --no-interaction
 docker compose exec api bin/console hautelook:fixtures:load --no-interaction
 
-# Opción 2: Solo recargar fixtures
-docker compose exec api bin/console doctrine:fixtures:load --no-interaction
+# Opción 2: Solo recargar fixtures (si solo necesitas datos frescos)
+docker compose exec api bin/console hautelook:fixtures:load --no-interaction
 ```
+
+> **Nota**: El comando `doctrine:database:create` de Symfony no funciona correctamente en este entorno Docker porque requiere una conexión existente. Por eso se usa MySQL directamente para crear la base de datos.
 
 ## 🎨 Características del Frontend
 
