@@ -199,35 +199,191 @@ http://localhost:3000
 
 Para jugar una trivia específica:
 ```
-http://localhost:3000/trivia/{slug}/{codigo}
+http://localhost:3000/trivia/{id}
 ```
 
-Ejemplo con fixtures:
-```
-http://localhost:3000/trivia/rrhh-2025/TEST01
+---
+
+## 🔥 Hot Reload en Desarrollo
+
+El proyecto está configurado para **hot reload automático** en Next.js cuando trabajas en Docker.
+
+### ✅ Compatibilidad:
+- ✅ **macOS** (Docker Desktop / Rancher Desktop) 
+- ✅ **Windows** (Docker Desktop / WSL2)
+- ✅ **Linux** (Docker Engine nativo)
+
+### ⚙️ Configuración Actual
+
+El hot reload utiliza **webpack con file polling** en lugar de Turbopack, optimizado para compatibilidad máxima con volúmenes de Docker:
+
+**En `frontend/package.json`:**
+```json
+"dev": "next dev --webpack -H 0.0.0.0"
 ```
 
-#### Ranking de la Trivia
-```
-http://localhost:3000/trivia/{slug}/ranking
+**En `frontend/next.config.ts`:**
+```typescript
+webpack: (config, { dev }) => {
+  if (dev) {
+    config.watchOptions = {
+      poll: 1000,           // Revisa cambios cada 1 segundo
+      aggregateTimeout: 300 // Espera 300ms antes de recompilar
+    };
+  }
+  return config;
+}
 ```
 
-Ejemplo con fixtures:
+**En `docker-compose.yml`:**
+```yaml
+environment:
+  WATCHPACK_POLLING: "true"
+  CHOKIDAR_USEPOLLING: "true"
 ```
-http://localhost:3000/trivia/rrhh-2025/ranking
+
+### Cómo Funciona:
+
+1. **Edita cualquier archivo** en `frontend/app/` o `frontend/components/`
+2. **Guarda el archivo** (Cmd+S / Ctrl+S)
+3. **Espera ~1-2 segundos** - El sistema detecta el cambio
+4. **La recompilación toma ~5-7 segundos** en la primera carga de una página
+5. **Cambios subsecuentes en archivos ya compilados: ~1-2 segundos**
+6. **El navegador se recarga automáticamente**
+
+### 🔍 Verificar que Funciona:
+
+```bash
+# Ver logs del frontend en tiempo real
+docker compose logs -f frontend
+
+# Al refrescar el navegador después de editar, verás:
+#  ○ Compiling /trivia/[slug]/[codigo] ...
+#  GET /trivia/rrhh-2025/TEST01 200 in 1.2s (compile: 950ms, render: 250ms)
 ```
-Muestra el leaderboard con todos los usuarios que completaron la trivia, ordenados por puntaje y tiempo.
+
+**Nota**: Webpack **no muestra un mensaje explícito** cuando detecta cambios en archivos. Los cambios se aplican silenciosamente y se compilan cuando refrescas el navegador o cuando el Fast Refresh lo hace automáticamente.
+
+### ⚠️ Si No Funciona el Hot Reload:
+
+#### Opción 1: Reiniciar el contenedor
+```bash
+docker compose restart frontend
+```
+
+#### Opción 2: Rebuild completo del contenedor
+```bash
+docker compose down
+docker compose build frontend
+docker compose up -d
+```
+
+#### Opción 3: Limpiar caché de Next.js
+```bash
+docker compose exec frontend rm -rf .next
+docker compose restart frontend
+```
+
+#### Opción 4: Hard refresh del navegador
+```
+Cmd + Shift + R (macOS)
+Ctrl + Shift + R (Windows/Linux)
+```
+
+### 🐧 Optimización para Linux Nativo
+
+Si usas **Docker Engine en Linux nativo** (no Docker Desktop, Rancher Desktop o WSL2), el sistema de archivos puede usar **inotify** directamente, que es más eficiente que polling.
+
+Puedes crear un override para desactivar polling:
+
+```bash
+# Crear docker-compose.override.yml para Linux nativo
+cat > docker-compose.override.yml << 'EOF'
+services:
+  frontend:
+    environment:
+      WATCHPACK_POLLING: "false"
+      CHOKIDAR_USEPOLLING: "false"
+EOF
+```
+
+Luego inicia normalmente:
+```bash
+docker compose up -d
+```
+
+**Nota**: Esta optimización **solo** funciona en Linux nativo. En macOS/Windows (incluso con WSL2), el polling es necesario porque los eventos del filesystem no se propagan correctamente desde el host → VM → contenedor.
+
+### 📊 Detalles Técnicos
+
+#### ¿Por qué webpack en lugar de Turbopack?
+
+Aunque **Turbopack es más rápido** (10x en algunos casos), actualmente tiene problemas de compatibilidad con file polling en volúmenes de Docker en macOS/Windows. Por eso usamos **webpack con configuración optimizada**:
+
+| Característica | Turbopack | Webpack (actual) |
+|----------------|-----------|------------------|
+| Velocidad de compilación | ⚡ Muy rápida | ⏱️ Moderada (5-7s inicial) |
+| Hot reload en Docker | ❌ Inconsistente | ✅ Funciona siempre |
+| Compatibilidad | ⚠️ Requiere polling especial | ✅ Polling estándar |
+| Recompilaciones | ⚡ <1s | ⏱️ 1-2s |
+
+#### ¿Por qué es necesario el polling?
+
+En **macOS y Windows**, Docker corre dentro de una VM (máquina virtual). Los eventos del filesystem (como `inotify` en Linux o `FSEvents` en macOS) **no atraviesan** la capa de virtualización:
+
+```
+Host (tu Mac/Windows)
+    ↓ (volumen montado)
+VM de Docker (Linux)
+    ↓ (sin eventos de filesystem)
+Contenedor de Next.js
+```
+
+El **polling** resuelve esto revisando activamente los archivos cada segundo:
+- ✅ **Ventaja**: Funciona en todos los sistemas operativos y configuraciones
+- ⚠️ **Desventaja**: Consume más CPU y es más lento que eventos nativos
+
+#### Variables de entorno:
+
+- `WATCHPACK_POLLING="true"`: Activa polling en webpack
+- `CHOKIDAR_USEPOLLING="true"`: Activa polling en el watcher de archivos (Chokidar es la librería que usa webpack internamente para detectar cambios)
+
+#### Volúmenes optimizados:
+
+El `docker-compose.yml` usa el flag `:cached` en el volumen del frontend:
+
+```yaml
+volumes:
+  - ./frontend:/app:cached
+```
+
+Esto mejora el rendimiento en macOS/Windows al permitir que la escritura en el volumen sea asíncrona.
+
+### 🎯 Recomendaciones
+
+**Para desarrollo óptimo:**
+
+1. ✅ **Usa el polling actual** - Es la configuración más confiable
+2. ✅ **Ten paciencia con la primera compilación** (~5-7s)
+3. ✅ **Los cambios subsecuentes serán más rápidos** (~1-2s)
+4. ⚠️ **Evita editar múltiples archivos simultáneamente** - Espera que se complete cada recompilación
+5. ✅ **Si trabajas en Linux nativo, usa el override** para mejor performance
+
+**Nota**: Si necesitas velocidad máxima de desarrollo, considera correr Next.js directamente en tu host (sin Docker) con `npm run dev`. El hot reload será instantáneo, pero perderás el entorno reproducible de Docker.
+
+---
+
+#### API REST
+```
+http://localhost:8080/api/doc
+```
+Documentación completa de endpoints con Swagger UI.
 
 #### Panel de Administración
 ```
 http://localhost:8081/admin
 ```
 Gestiona trivias, preguntas, usuarios y resultados mediante interfaz EasyAdmin.
-
-#### Documentación de la API (Swagger)
-```
-http://localhost:8080/api/doc
-```
 
 ## 📋 Datos de Prueba (Fixtures)
 
