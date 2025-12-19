@@ -6,7 +6,7 @@ ARG VERSION=latest
 # Metadata labels
 LABEL version="${VERSION}"
 LABEL description="TalaTrivia Backend - Symfony Admin Panel"
-LABEEL maintainer="TalaTrivia Team"
+LABEL maintainer="TalaTrivia Team"
 
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \

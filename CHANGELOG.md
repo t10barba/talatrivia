@@ -24,10 +24,6 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 - **Base de Datos**: MySQL 8.0 con migraciones y fixtures
 - **Dockerización**: Entorno completamente containerizado con Docker Compose
 
-### Cambiado
-- Actualizado `frontend/package.json` de versión `0.1.0` a `1.0.0`
-- Corregido nombre del paquete frontend de "temp" a "talatrivia-frontend"
-- Configuración de API docs Nelmio para leer versión desde variable de entorno
 
 ---
 
@@ -130,6 +126,3 @@ Para versiones en desarrollo o prueba, se añaden sufijos:
 
 ---
 
-## Enlaces
-
-[1.0.0]: https://github.com/tu-usuario/talatrivia/releases/tag/v1.0.0

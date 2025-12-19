@@ -3,8 +3,7 @@ FROM node:20-alpine
 # Build argument for version
 ARG VERSION=latest
 
-# Metadata labels
-LAEL version="${VERSION}"
+LABEL version="${VERSION}"
 LABEL description="TalaTrivia Frontend - Next.js Application"
 LABEL maintainer="TalaTrivia Team"
 
