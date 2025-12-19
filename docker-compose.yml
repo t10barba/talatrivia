@@ -101,6 +101,7 @@ services:
       NEXT_PUBLIC_FEEDBACK_DELAY: "2000"
       WATCHPACK_POLLING: "true"
       CHOKIDAR_USEPOLLING: "true"
+      DOCKER_ENV: "true"
     depends_on:
       - api
     networks:

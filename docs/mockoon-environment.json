@@ -1,0 +1,451 @@
+{
+  "uuid": "53345ad4-e42a-49ff-9226-4c11c12398d6",
+  "lastMigration": 33,
+  "name": "TalaTrivia Mock API",
+  "endpointPrefix": "",
+  "latency": 100,
+  "port": 3001,
+  "hostname": "localhost",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "015fdf8a-7ae7-453a-a939-61c4e00966f3",
+      "type": "http",
+      "documentation": "Obtener siguiente pregunta para un usuario",
+      "method": "get",
+      "endpoint": "api/v1/juego/:slug/:codigo/pregunta",
+      "responses": [
+        {
+          "uuid": "ee25b5e1-7b02-4952-87aa-69392948ae23",
+          "body": "{\n  \"preguntaId\": 1,\n  \"texto\": \"¿Qué es el onboarding en recursos humanos?\",\n  \"respuestas\": [\n    {\"id\": 1, \"texto\": \"Es una técnica de capacitación externa\"},\n    {\"id\": 2, \"texto\": \"Es el proceso de desvinculación laboral\"},\n    {\"id\": 3, \"texto\": \"Es el proceso de integración de un nuevo empleado a la empresa\"}\n  ],\n  \"numeroPregunta\": 1,\n  \"totalPreguntas\": 10,\n  \"nombreTrivia\": \"Trivia de Recursos Humanos\",\n  \"nombreUsuario\": \"Daniela\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "TEST01 - Primera pregunta",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "codigo",
+              "value": "TEST01",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "3410c761-de52-480c-b2ff-cba463ad8a4b",
+          "body": "{\n  \"preguntaId\": 3,\n  \"texto\": \"¿Qué significa la sigla KPI en el contexto de recursos humanos?\",\n  \"respuestas\": [\n    {\"id\": 7, \"texto\": \"Keep People Informed (Mantener a las Personas Informadas)\"},\n    {\"id\": 8, \"texto\": \"Key Performance Indicator (Indicador Clave de Desempeño)\"},\n    {\"id\": 9, \"texto\": \"Knowledge Process Integration (Integración de Procesos de Conocimiento)\"}\n  ],\n  \"numeroPregunta\": 3,\n  \"totalPreguntas\": 10,\n  \"nombreTrivia\": \"Trivia de Recursos Humanos\",\n  \"nombreUsuario\": \"José\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "TEST02 - En progreso",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "codigo",
+              "value": "TEST02",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "22425312-881f-49c7-a819-38616dd6ccc8",
+          "body": "{\n  \"finalizado\": true,\n  \"nombreUsuario\": \"Carlos\",\n  \"nombreTrivia\": \"Trivia de Recursos Humanos\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "TEST03/TEST04 - Ya finalizaron",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "codigo",
+              "value": "TEST03|TEST04",
+              "invert": false,
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "25c9cf1d-2898-4cb8-bca9-4344559f7f02",
+          "body": "{\n  \"preguntaId\": 1,\n  \"texto\": \"¿Qué es el onboarding en recursos humanos?\",\n  \"respuestas\": [\n    {\"id\": 1, \"texto\": \"Es una técnica de capacitación externa\"},\n    {\"id\": 2, \"texto\": \"Es el proceso de desvinculación laboral\"},\n    {\"id\": 3, \"texto\": \"Es el proceso de integración de un nuevo empleado a la empresa\"}\n  ],\n  \"numeroPregunta\": 1,\n  \"totalPreguntas\": 10,\n  \"nombreTrivia\": \"Trivia de Recursos Humanos\",\n  \"nombreUsuario\": \"Usuario\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Respuesta por defecto",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "009e4722-f288-4c2e-b477-3891bf47db82",
+      "type": "http",
+      "documentation": "Enviar respuesta del usuario",
+      "method": "post",
+      "endpoint": "api/v1/juego/:slug/:codigo/respuesta",
+      "responses": [
+        {
+          "uuid": "d5544b4b-5c08-488c-beaf-76d7d8f2bf62",
+          "body": "{\n  \"correcto\": true,\n  \"puntajeObtenido\": 2,\n  \"finalizado\": false\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Respuesta correcta",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "respuestaId",
+              "value": "3|8|11|14|17|21|24|27|30|33",
+              "invert": false,
+              "operator": "regex"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "1cf32f66-5965-4bfd-bf3a-d8b44867b3f8",
+          "body": "{\n  \"correcto\": false,\n  \"puntajeObtenido\": 0,\n  \"finalizado\": false\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Respuesta incorrecta",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "1a69d48b-b4e3-45cb-8857-4536b11496d4",
+      "type": "http",
+      "documentation": "Obtener puntaje final del usuario",
+      "method": "get",
+      "endpoint": "api/v1/juego/:slug/:codigo/puntaje",
+      "responses": [
+        {
+          "uuid": "3e410b27-4c85-49f3-83b4-4550d250814f",
+          "body": "{\n  \"puntajeTotal\": 18,\n  \"tiempoTranscurrido\": \"10:00\",\n  \"nombreTrivia\": \"Trivia de Recursos Humanos\",\n  \"nombreUsuario\": \"Carlos\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "TEST03 - Puntaje perfecto",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "codigo",
+              "value": "TEST03",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "ab91946c-8a4d-40b7-b85f-953929a1b2c2",
+          "body": "{\n  \"puntajeTotal\": 11,\n  \"tiempoTranscurrido\": \"12:00\",\n  \"nombreTrivia\": \"Trivia de Recursos Humanos\",\n  \"nombreUsuario\": \"Ana\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "TEST04 - Puntaje mixto",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "codigo",
+              "value": "TEST04",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "837b18b0-c541-4ef6-a3fe-8b7709307f4f",
+          "body": "{\n  \"puntajeTotal\": 14,\n  \"tiempoTranscurrido\": \"11:30\",\n  \"nombreTrivia\": \"Trivia de Recursos Humanos\",\n  \"nombreUsuario\": \"Usuario\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Puntaje por defecto",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "1e58b751-32ef-4835-88fd-b2eb9b61e397",
+      "type": "http",
+      "documentation": "Obtener ranking de la trivia",
+      "method": "get",
+      "endpoint": "api/v1/juego/:slug/ranking",
+      "responses": [
+        {
+          "uuid": "1b625763-d862-4eb9-9065-4d58e4abdeb2",
+          "body": "{\n  \"nombreTrivia\": \"Trivia de Recursos Humanos\",\n  \"ranking\": [\n    {\n      \"posicion\": 1,\n      \"nombreUsuario\": \"Carlos\",\n      \"puntajeTotal\": 18,\n      \"tiempoTranscurrido\": \"10:00\",\n      \"finishedAt\": \"2025-12-12T15:30:45+00:00\"\n    },\n    {\n      \"posicion\": 2,\n      \"nombreUsuario\": \"Ana\",\n      \"puntajeTotal\": 11,\n      \"tiempoTranscurrido\": \"12:00\",\n      \"finishedAt\": \"2025-12-12T16:10:22+00:00\"\n    },\n    {\n      \"posicion\": 3,\n      \"nombreUsuario\": \"María\",\n      \"puntajeTotal\": 10,\n      \"tiempoTranscurrido\": \"13:45\",\n      \"finishedAt\": \"2025-12-12T17:22:10+00:00\"\n    },\n    {\n      \"posicion\": 4,\n      \"nombreUsuario\": \"Pedro\",\n      \"puntajeTotal\": 8,\n      \"tiempoTranscurrido\": \"14:30\",\n      \"finishedAt\": \"2025-12-12T18:05:33+00:00\"\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Ranking completo",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "015fdf8a-7ae7-453a-a939-61c4e00966f3"
+    },
+    {
+      "type": "route",
+      "uuid": "009e4722-f288-4c2e-b477-3891bf47db82"
+    },
+    {
+      "type": "route",
+      "uuid": "1a69d48b-b4e3-45cb-8857-4536b11496d4"
+    },
+    {
+      "type": "route",
+      "uuid": "1e58b751-32ef-4835-88fd-b2eb9b61e397"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [],
+  "callbacks": []
+}

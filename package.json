@@ -1,0 +1,33 @@
+{
+  "name": "talatrivia",
+  "version": "1.0.0",
+  "description": "Plataforma de Trivia Empresarial - Sistema completo con Symfony y Next.js",
+  "private": true,
+  "scripts": {
+    "install:frontend": "cd frontend && npm install",
+    "setup": "docker compose up -d database api api_nginx && docker compose exec -T api bin/console doctrine:migrations:migrate --no-interaction && docker compose exec -T api bin/console hautelook:fixtures:load --no-interaction",
+    "setup:full": "npm run docker:up && npm run setup",
+    "docker:up": "docker compose up -d --build",
+    "docker:down": "docker compose down",
+    "docker:restart": "docker compose restart",
+    "docker:backend": "docker compose up -d database api api_nginx",
+    "docker:backend:down": "docker compose stop api api_nginx database",
+    "docker:logs": "docker compose logs -f",
+    "docker:logs:frontend": "docker compose logs -f frontend",
+    "docker:logs:api": "docker compose logs -f api",
+    "docker:clean": "docker compose down -v",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:api": "docker compose up -d database api api_nginx",
+    "dev:all": "npm run docker:backend && npm run dev:frontend"
+  },
+  "keywords": [
+    "trivia",
+    "symfony",
+    "nextjs",
+    "docker",
+    "php",
+    "react"
+  ],
+  "author": "",
+  "license": "ISC"
+}

@@ -6,7 +6,11 @@
     "dev": "next dev --webpack -H 0.0.0.0",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "docker:backend": "cd .. && docker compose up -d database api api_nginx",
+    "docker:backend:down": "cd .. && docker compose stop api api_nginx database",
+    "docker:logs": "cd .. && docker compose logs -f frontend",
+    "docker:logs:api": "cd .. && docker compose logs -f api"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.1.0",

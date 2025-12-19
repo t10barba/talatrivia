@@ -150,9 +150,12 @@ Cliente → Nginx (8080/8081) → PHP-FPM (9000) → Symfony → Base de Datos
 
 ## �🚀 Instalación y Configuración
 
+> **Nota**: Este es el método por defecto usando Docker Completo. Para otros modos de desarrollo, consulta la sección [Modos de Desarrollo](#-modos-de-desarrollo) arriba.
+
 ### Prerrequisitos
 - Docker Desktop o Rancher Desktop
 - Git
+- Node.js 18.x+ y npm 9.x+ (solo si usarás desarrollo local)
 
 ### 1. Clonar el Repositorio
 ```bash
@@ -160,37 +163,39 @@ git clone https://github.com/t10barba/talatrivia.git
 cd talatrivia
 ```
 
-### 2. Configurar Variables de Entorno
-```bash
-# Copiar archivos de ejemplo para API y Backend
-cp api/.env.example api/.env
-cp backend/.env.example backend/.env
+### 2. Inicialización Completa con Docker (Recomendado)
 
-# Opcional: Personalizar credenciales en .env si es necesario
-# Los valores por defecto están listos para Docker Compose
+```bash
+# Construye contenedores, ejecuta migraciones y carga fixtures
+npm run setup:full
 ```
 
-### 3. Levantar los Servicios con Docker Compose
+Este comando único:
+1. ✅ Construye e inicia todos los contenedores Docker
+2. ✅ Crea la estructura de base de datos con migraciones
+3. ✅ Carga datos de prueba (1 trivia con 4 usuarios)
+
+**Tiempo estimado**: 2-3 minutos en la primera ejecución.
+
+### Comandos Alternativos
+
+Si prefieres ejecutar los pasos manualmente:
+
 ```bash
-docker compose up -d --build
+# Iniciar todos los servicios
+npm run docker:up
+
+# Ejecutar migraciones y fixtures por separado
+npm run setup
 ```
+
+### 3. Acceder a las Aplicaciones
 
 Esto iniciará:
+- **Frontend**: http://localhost:3000
 - **API REST**: http://localhost:8080
 - **Panel Admin**: http://localhost:8081/admin
-- **Frontend**: http://localhost:3000
 - **MySQL**: Puerto 3306 (interno)
-
-### 4. Ejecutar Migraciones y Cargar Fixtures
-```bash
-# Crear estructura de base de datos
-docker compose exec api bin/console doctrine:migrations:migrate --no-interaction
-
-# Cargar datos de prueba
-docker compose exec api bin/console hautelook:fixtures:load --no-interaction
-```
-
-### 5. Acceder a las Aplicaciones
 
 #### Frontend (Juego)
 ```
@@ -201,6 +206,32 @@ Para jugar una trivia específica:
 ```
 http://localhost:3000/trivia/{id}
 ```
+
+### 4. Comandos Útiles
+
+```bash
+# Gestión de servicios Docker
+npm run docker:up              # Inicia todos los servicios
+npm run docker:down            # Detiene todos los servicios  
+npm run docker:restart         # Reinicia servicios
+npm run docker:clean           # Elimina todo (incluye volúmenes)
+
+# Gestión de backend únicamente
+npm run docker:backend         # Inicia solo database + api + nginx
+npm run docker:backend:down    # Detiene backend
+
+# Desarrollo local (frontend)
+npm run install:frontend       # Instala dependencias del frontend
+npm run dev:frontend           # Ejecuta frontend localmente
+npm run dev:all                # Backend en Docker + Frontend local
+
+# Logs
+npm run docker:logs            # Ver todos los logs
+npm run docker:logs:frontend   # Ver logs del frontend
+npm run docker:logs:api        # Ver logs de la API
+```
+
+Para más comandos y opciones, consulta [package.json](package.json) en la raíz o [frontend/README.md](frontend/README.md).
 
 ---
 
@@ -314,7 +345,150 @@ docker compose up -d
 
 **Nota**: Esta optimización **solo** funciona en Linux nativo. En macOS/Windows (incluso con WSL2), el polling es necesario porque los eventos del filesystem no se propagan correctamente desde el host → VM → contenedor.
 
-### 📊 Detalles Técnicos
+---
+
+## 🚀 Modos de Desarrollo
+
+El proyecto soporta **múltiples modos de desarrollo** para adaptarse a diferentes flujos de trabajo y recursos disponibles. Elige el que mejor se adapte a tus necesidades.
+
+### 📊 Comparación Rápida
+
+| Aspecto | Docker Completo | Híbrido (Local + Docker) | Mock API |
+|---------|----------------|--------------------------|----------|
+| **Setup** | ⚡ Muy fácil (1 comando) | 🔧 Moderado (2 comandos) | 🎯 Simple (solo frontend) |
+| **Hot Reload** | ⏱️ ~5-7s (primera vez) | ⚡ Instantáneo | ⚡ Instantáneo |
+| **Recursos** | 💻 Alto (6 contenedores) | 🟢 Medio (3 contenedores) | 🟢 Bajo (sin Docker) |
+| **Testing Real** | ✅ Sí | ✅ Sí | ❌ No (datos mock) |
+| **Debugging** | 🔧 Dentro del contenedor | ✅ Nativo en VS Code | ✅ Nativo en VS Code |
+| **Requiere Docker** | ✅ Sí | ✅ Sí (solo backend) | ❌ No |
+| **Requiere Node local** | ❌ No | ✅ Sí | ✅ Sí |
+| **Ideal para** | Setup inicial, equipos | Desarrollo frontend activo | Diseño UI, prototipos |
+
+### 🎯 Modo 1: Docker Completo (Recomendado por defecto)
+
+Todo el stack corre en contenedores Docker. Es el modo más simple para comenzar y garantiza entornos consistentes en todos los equipos.
+
+```
+┌────────────────────────────────────────────────────────┐
+│                   TU COMPUTADORA                        │
+│                                                         │
+│  ┌───────────────────────────────────────────────────┐ │
+│  │          DOCKER CONTAINERS                         │ │
+│  │                                                    │ │
+│  │  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐ │ │
+│  │  │Frontend│  │  API   │  │Backend │  │ MySQL  │ │ │
+│  │  │  :3000 │◄─┤  :8080 │  │  :8081 │◄─┤  :3306 │ │ │
+│  │  └────────┘  └────────┘  └────────┘  └────────┘ │ │
+│  │      ▲                                            │ │
+│  │      │ Hot Reload con polling                    │ │
+│  └──────┼────────────────────────────────────────────┘ │
+│         │                                              │
+│  ┌──────▼────────┐                                     │
+│  │ Editas código │                                     │
+│  │   en VS Code  │                                     │
+│  └───────────────┘                                     │
+└────────────────────────────────────────────────────────┘
+```
+
+**Inicializar:**
+```bash
+# Desde la raíz del proyecto
+npm run setup:full
+```
+
+**URLs:**
+- Frontend: http://localhost:3000
+- API REST: http://localhost:8080
+- Backend Admin: http://localhost:8081/admin
+
+### 💻 Modo 2: Desarrollo Híbrido (Frontend local + Backend Docker)
+
+El frontend corre de forma nativa (mejor performance) mientras que API y base de datos corren en Docker.
+
+```
+┌────────────────────────────────────────────────────────┐
+│                   TU COMPUTADORA                        │
+│                                                         │
+│  ┌────────┐         ┌────────────────────────────────┐ │
+│  │Frontend│         │    DOCKER CONTAINERS            │ │
+│  │ Local  │         │                                 │ │
+│  │ :3000  │◄────────┤  ┌────────┐      ┌────────┐   │ │
+│  │        │         │  │  API   │      │ MySQL  │   │ │
+│  │        │         │  │  :8080 │◄─────┤  :3306 │   │ │
+│  └───┬────┘         │  └────────┘      └────────┘   │ │
+│      │              └────────────────────────────────┘ │
+│      │ Hot Reload instantáneo                          │
+│      │                                                 │
+│  ┌───▼────────┐                                        │
+│  │  VS Code   │                                        │
+│  └────────────┘                                        │
+└────────────────────────────────────────────────────────┘
+```
+
+**Inicializar:**
+```bash
+# Terminal 1: Inicia backend en Docker
+npm run docker:backend
+
+# Terminal 2: Inicia frontend localmente
+npm run dev:frontend
+```
+
+**Ventajas:**
+- ⚡ Hot reload instantáneo (~100ms vs ~5s)
+- 🐛 Debugging nativo en VS Code
+- 🔧 Menos consumo de recursos
+
+### 🎭 Modo 3: Con Mock API (Mockoon u otros)
+
+Frontend corre localmente conectado a una mock API. Ideal para desarrollo de UI sin necesidad de backend real.
+
+```
+┌────────────────────────────────────────────────────────┐
+│                   TU COMPUTADORA                        │
+│                                                         │
+│  ┌────────┐              ┌────────┐                    │
+│  │Frontend│              │ Mock   │                    │
+│  │ Local  │◄─────────────┤  API   │                    │
+│  │ :3000  │              │ :3001  │                    │
+│  │        │              │(Mockoon)                    │
+│  └───┬────┘              └────────┘                    │
+│      │ Hot Reload instantáneo                          │
+│      │                                                 │
+│  ┌───▼────────┐                                        │
+│  │  VS Code   │                                        │
+│  └────────────┘                                        │
+└────────────────────────────────────────────────────────┘
+```
+
+**Inicializar:**
+```bash
+# 1. Importa mockoon-environment.json en Mockoon Desktop
+# 2. Inicia el servidor Mockoon (puerto 3001)
+# 3. Edita frontend/.env.local:
+#    NEXT_PUBLIC_API_URL=http://localhost:3001
+# 4. Inicia frontend
+cd frontend && npm run dev
+```
+
+**Archivo incluido**: [mockoon-environment.json](mockoon-environment.json) con configuración completa
+
+**Ventajas:**
+- 🚀 Sin Docker requerido
+- 🎨 Desarrollo de UI independiente
+- 💡 Control total de respuestas
+
+### 📚 Documentación Detallada
+
+Para instrucciones completas de cada modo, consulta:
+
+- **Frontend**: [frontend/README.md](frontend/README.md) - Guía completa con troubleshooting
+- **API**: Ver sección "API Endpoints" más abajo
+- **Backend Admin**: Accede a http://localhost:8081/admin
+
+---
+
+## 🔥 Hot Reload en Desarrollo
 
 #### ¿Por qué webpack en lugar de Turbopack?
 
@@ -555,7 +729,7 @@ GET /api/juego/{slug}/ranking?limit=50
 
 ## 🧪 Testing con Postman
 
-Importa la colección incluida en `/api/postman_collection.json`:
+Importa la colección incluida en [docs/postman_collection.json](docs/postman_collection.json):
 
 - **Juego - Flujo completo**: 6 requests con tests automatizados
   1. Obtener primera pregunta
@@ -567,6 +741,61 @@ Importa la colección incluida en `/api/postman_collection.json`:
 
 - **Validaciones y Errores**: 6 escenarios de error
 - **Quick Tests**: 5 casos de prueba rápidos
+
+## 🎭 Mock API con Mockoon
+
+Para desarrollo frontend sin necesidad de backend, el proyecto incluye un archivo de configuración de Mockoon con todos los endpoints mockeados.
+
+### 📦 Archivo Incluido
+
+**[mockoon-environment.json](docs/mockoon-environment.json)** - Configuración completa lista para importar
+
+### 🚀 Uso Rápido
+
+1. **Instala Mockoon Desktop**: https://mockoon.com/download/
+2. **Importa el archivo**:
+   - Abre Mockoon
+   - Click en "Open environment" o menú → File → Open environment
+   - Selecciona `mockoon-environment.json` desde la carpeta `docs/`
+3. **Inicia el servidor**: Click en el botón Play ▶️ (puerto 3001)
+4. **Configura el frontend**:
+   ```bash
+   # Edita frontend/.env.local
+   NEXT_PUBLIC_API_URL=http://localhost:3001
+   ```
+5. **Ejecuta el frontend**:
+   ```bash
+   cd frontend && npm run dev
+   ```
+
+### 📋 Características del Mock
+
+✅ **4 endpoints completos** de la API de juego  
+✅ **Datos de prueba realistas** basados en fixtures de BD  
+✅ **Usuarios TEST01-TEST04** con diferentes estados  
+✅ **Respuestas dinámicas** según código de usuario  
+✅ **CORS configurado** para desarrollo local  
+✅ **Latencia simulada** (100ms) para testing realista  
+
+### 🧪 Endpoints Mockeados
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/juego/:slug/pregunta/:codigo` | Obtener siguiente pregunta |
+| POST | `/api/juego/:slug/respuesta/:codigo` | Enviar respuesta |
+| GET | `/api/juego/:slug/puntaje/:codigo` | Obtener puntaje final |
+| GET | `/api/juego/:slug/ranking` | Obtener ranking completo |
+
+### 👥 Usuarios de Prueba Mockeados
+
+| Código | Usuario | Estado | Puntaje |
+|--------|---------|--------|---------|
+| TEST01 | Daniela Sandía | Sin iniciar | - |
+| TEST02 | José Limón | En progreso (pregunta 3) | - |
+| TEST03 | Carlos Manzana | Finalizado | 18 pts (perfecto) |
+| TEST04 | Ana Kiwi | Finalizado | 11 pts |
+
+**Prueba con**: `http://localhost:3000/trivia/rrhh-2025/TEST01`
 
 ## 📂 Gestión de Migraciones
 
