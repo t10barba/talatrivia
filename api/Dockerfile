@@ -1,5 +1,13 @@
 FROM php:8.2-fpm
 
+# Build argument for version
+ARG VERSION=latest
+
+# Metadata labels
+LABEL version="${VERSION}"
+LABEL description="TalaTrivia API - Symfony Backend"
+LABEL maintainer="TalaTrivia Team"
+
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git \

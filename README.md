@@ -1,5 +1,7 @@
 # Plataforma de Trivia Empresarial
 
+> **Versión**: 1.0.0 | [Ver Changelog](CHANGELOG.md) | [Guía de Versionado](docs/versioning-guide.md)
+
 Sistema completo de trivia interactiva construido con Symfony 7.4 (Backend/API) y Next.js 16 (Frontend), diseñado para capacitación y evaluación de empleados mediante cuestionarios personalizados.
 
 ## 🎯 Características Principales
@@ -916,6 +918,79 @@ docker compose exec database mysql -u root -proot trivia_db
 - [ ] **CI/CD**: Pipeline automatizado con GitHub Actions
 - [ ] **i18n**: Soporte multiidioma (ES, EN, PT)
 - [ ] **Temas Personalizables**: Dark mode y colores corporativos
+
+## 🏷️ Versionado
+
+Este proyecto utiliza **Semantic Versioning 2.0.0** (SemVer):
+
+- **MAJOR.MINOR.PATCH** (ej: `1.0.0`)
+  - **MAJOR**: Cambios incompatibles con versiones anteriores
+  - **MINOR**: Nuevas funcionalidades compatibles
+  - **PATCH**: Correcciones de bugs
+
+### Gestión de Versiones
+
+- **Versión Actual**: `1.0.0` (ver archivo [VERSION](VERSION))
+- **Historial de Cambios**: [CHANGELOG.md](CHANGELOG.md)
+- **Guía Completa**: [docs/versioning-guide.md](docs/versioning-guide.md)
+
+### Pre-releases
+
+Se soportan versiones de pre-lanzamiento:
+- `X.Y.Z-alpha.N` - Desarrollo temprano
+- `X.Y.Z-beta.N` - Testing
+- `X.Y.Z-rc.N` - Release candidate
+
+### Workflow con Gitflow
+
+```bash
+# 1. Crear rama de release
+git checkout -b release/1.1.0
+
+# 2. Actualizar VERSION y otros archivos
+echo "1.1.0" > VERSION
+# Editar package.json, .env.example, CHANGELOG.md
+
+# 3. Commit, merge a main y crear tag
+git commit -am "Bump version to 1.1.0"
+git checkout main
+git merge --no-ff release/1.1.0
+git tag -a v1.1.0 -m "Release 1.1.0"
+git push origin main v1.1.0
+```
+
+### Docker con Versiones
+
+Las imágenes Docker se etiquetan con la versión:
+
+```bash
+# Configurar versión en .env
+APP_VERSION=1.0.0
+
+# Build con versión específica
+docker compose build
+
+# Imágenes resultantes
+talatrivia-api:1.0.0
+talatrivia-backend:1.0.0
+talatrivia-frontend:1.0.0
+```
+
+### Endpoints de Versión
+
+```bash
+# Consultar versión actual de la API
+curl http://localhost:8080/api/version
+
+# Respuesta
+{
+  "version": "1.0.0",
+  "application": "TalaTrivia API",
+  "timestamp": 1734652800
+}
+```
+
+La versión también se muestra en el footer del frontend.
 
 ## 📝 Notas de Desarrollo
 

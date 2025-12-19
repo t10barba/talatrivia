@@ -1,6 +1,6 @@
 {
-  "name": "temp",
-  "version": "0.1.0",
+  "name": "talatrivia-frontend",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev --webpack -H 0.0.0.0",

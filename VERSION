@@ -1,0 +1,28 @@
+1.0.0
+# TalaTrivia Version File
+# 
+# This file contains the current version of the application.
+# Format: Semantic Versioning 2.0.0 (https://semver.org/)
+# 
+# Valid formats:
+#   - Stable releases: X.Y.Z (e.g., 1.0.0, 1.2.3, 2.0.0)
+#   - Pre-releases: X.Y.Z-prerelease (e.g., 1.1.0-beta.1, 2.0.0-rc.1)
+# 
+# Where:
+#   X = MAJOR version (breaking changes)
+#   Y = MINOR version (new features, backward compatible)
+#   Z = PATCH version (bug fixes, backward compatible)
+# 
+# Pre-release suffixes:
+#   -alpha.N  : Early development, unstable
+#   -beta.N   : Feature complete, testing phase
+#   -rc.N     : Release candidate, ready for final testing
+# 
+# When updating:
+#   1. Update this VERSION file
+#   2. Update package.json files (root and frontend)
+#   3. Update .env files (APP_VERSION variable)
+#   4. Update CHANGELOG.md with changes
+#   5. Commit changes in release branch
+#   6. Merge to main and create git tag (e.g., v1.0.0)
+#   7. Build and tag Docker images with same version

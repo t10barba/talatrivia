@@ -24,15 +24,19 @@ services:
 
   # API Service - Symfony PHP Framework
   api:
+    image: talatrivia-api:${APP_VERSION:-latest}
     build:
       context: ./api
       dockerfile: Dockerfile
+      args:
+        VERSION: ${APP_VERSION:-latest}
     container_name: talatrivia_api
     working_dir: /var/www/api
     volumes:
       - ./api:/var/www/api:cached
     environment:
       DATABASE_URL: mysql://talatrivia_user:talatrivia_pass@database:3306/talatrivia
+      APP_VERSION: ${APP_VERSION:-1.0.0}
     depends_on:
       database:
         condition: service_healthy
@@ -55,15 +59,19 @@ services:
 
   # Backend Service - Symfony PHP Framework
   backend:
+    image: talatrivia-backend:${APP_VERSION:-latest}
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        VERSION: ${APP_VERSION:-latest}
     container_name: talatrivia_backend
     working_dir: /var/www/backend
     volumes:
       - ./backend:/var/www/backend:cached
     environment:
       DATABASE_URL: mysql://talatrivia_user:talatrivia_pass@database:3306/talatrivia
+      APP_VERSION: ${APP_VERSION:-1.0.0}
     depends_on:
       database:
         condition: service_healthy
@@ -86,9 +94,12 @@ services:
 
   # Frontend Service - Next.js React Framework
   frontend:
+    image: talatrivia-frontend:${APP_VERSION:-latest}
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VERSION: ${APP_VERSION:-latest}
     container_name: talatrivia_frontend
     ports:
       - "3000:3000"
@@ -99,6 +110,7 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8080
       NEXT_PUBLIC_FEEDBACK_DELAY: "2000"
+      APP_VERSION: ${APP_VERSION:-1.0.0}
       WATCHPACK_POLLING: "true"
       CHOKIDAR_USEPOLLING: "true"
       DOCKER_ENV: "true"
